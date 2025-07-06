@@ -2,7 +2,7 @@ import { Navigate } from 'react-router-dom';
 
 // Auth guard component to check if user is authenticated and has the correct role
 const RequireAuth = ({ children, allowedRole }) => {
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') ||'{}');
   
   // If user is not authenticated, redirect to login
   if (!user.isAuthenticated) {
