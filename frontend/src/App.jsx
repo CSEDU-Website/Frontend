@@ -3,8 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import HomePage from './HomePage'
 import Login from './Auth/Login'
 import SignUp from "./Auth/SignUp"
-import StudentDashboard from './StudentDashboard'
-import TeacherDashboard from './TeacherDashboard'
+import StudentDashboard from "./Student/StudentDashboard"
+import TeacherDashboard from './Teacher/TeacherDashboard'
 import AdminDashboard from './AdminDashboard'
 import RequireAuth from './RequireAuth'
 
