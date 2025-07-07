@@ -57,7 +57,7 @@ const CreateNewCourse = () => {
     description: "",
     other_links: "",
     semester: "",
-    batch: "",
+    batch: null,
     type: "Theory",
     teacher_id: null,
     image_url: "", // optional: set to "" to use random image from backend
@@ -80,7 +80,7 @@ const CreateNewCourse = () => {
       !formData?.teacher_id
     ) {
       alert("Fill up the info");
-      console.log(formData)
+      console.log(formData);
       return;
     }
 
@@ -101,6 +101,16 @@ const CreateNewCourse = () => {
     try {
       const res = await axios.post(`${BACKEND_URL}/v1/courses/create`, payload);
       setMessage(res.data.message || "Course created successfully");
+
+      setFormData((prev) => ({
+        ...prev,
+        title: "",
+        description: "",
+        other_links: "",
+        semester: "",
+        batch: null,
+        image_url: "",
+      }));
     } catch (err) {
       console.error("Failed to create course:", err);
       setMessage("Failed to create course");

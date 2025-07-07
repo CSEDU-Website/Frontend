@@ -2,10 +2,12 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import CreateNewCourse from './CreateNewCourse';
+import MyCourses from './MyCourses';
+
 
 
 function TeacherDashboard() {
-  const [activePage, setActivePage] = useState("Create New Course");
+  const [activePage, setActivePage] = useState("My Courses");
 
   const renderPage = () => {
     switch (activePage) {
@@ -14,7 +16,7 @@ function TeacherDashboard() {
       case "Create New Course":
         return <CreateNewCourse/>
       case "My Courses":
-        return <h1 className="text-xl">📚 Courses Page</h1>;
+        return <MyCourses/>
       case "Finance":
         return <h1 className="text-xl">👨‍🎓 Finance Page</h1>;
       case "settings":

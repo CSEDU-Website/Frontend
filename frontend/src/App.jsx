@@ -7,6 +7,8 @@ import StudentDashboard from "./Student/StudentDashboard"
 import TeacherDashboard from './Teacher/TeacherDashboard'
 import AdminDashboard from './AdminDashboard'
 import RequireAuth from './RequireAuth'
+import TeacherClassroom from './Teacher/TeacherClassroom'
+import SubmissionList from './Teacher/SubmissionList'
 
 function App() {
   return (
@@ -16,6 +18,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
+        
 
         {/* Protected pages */}
         <Route
@@ -31,9 +34,13 @@ function App() {
           element={
             <RequireAuth allowedRole="teacher">
               <TeacherDashboard />
+              
             </RequireAuth>
           }
         />
+        <Route path="/teacher/classroom/:course_id" element={<TeacherClassroom />} />
+        <Route path="/assignments/:assignmentId/submissions" element={<SubmissionList />} />
+
         <Route
           path="/admin-dashboard"
           element={
