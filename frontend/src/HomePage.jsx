@@ -20,7 +20,8 @@ function HomePage() {
               <div className="hidden md:flex items-center space-x-1">
                 <Link to="/people" className="py-4 px-2 hover:text-blue-300 transition duration-300">People Directory</Link>
                 <Link to="/chairman" className="py-4 px-2 hover:text-blue-300 transition duration-300">About Chairman</Link>
-                <Link to="/admission" className="py-4 px-2 hover:text-blue-300 transition duration-300">Admission Hub</Link>
+                <Link to="/admission-hub" className="py-4 px-2 hover:text-blue-300 transition duration-300">Admission Hub</Link>
+                <Link to="/apply" className="py-4 px-2 hover:text-blue-300 transition duration-300">Apply Now</Link>
                 <Link to="/meetings" className="py-4 px-2 hover:text-blue-300 transition duration-300">Departmental Meetings</Link>
               </div>
             </div>
