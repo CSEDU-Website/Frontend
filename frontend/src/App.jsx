@@ -2,9 +2,9 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 
 import HomePage from './HomePage'
 import Login from './Auth/Login'
-import SignUp from "./Auth/SignUp"
-import StudentDashboard from './StudentDashboard'
-import TeacherDashboard from './TeacherDashboard'
+import SignUp from './Auth/SignUp'
+import StudentDashboard from './Student/StudentDashboard'
+import TeacherDashboard from './Teacher/TeacherDashboard'
 import AdminDashboard from './AdminDashboard'
 import RequireAuth from './RequireAuth'
 import AdmissionHub from './Admissions/AdmissionHub'
@@ -14,6 +14,8 @@ import CourseSyllabus from './Admissions/CourseSyllabus'
 import CourseDetails from './Admissions/CourseDetails'
 import ApplicationForm from './Admissions/ApplicationForm'
 import ApplicationSubmitted from './Admissions/ApplicationSubmitted'
+import TeacherClassroom from './Teacher/TeacherClassroom'
+import SubmissionList from './Teacher/SubmissionList'
 
 function App() {
   return (
@@ -48,6 +50,9 @@ function App() {
             </RequireAuth>
           }
         />
+        <Route path="/teacher/classroom/:course_id" element={<TeacherClassroom />} />
+        <Route path="/assignments/:assignmentId/submissions" element={<SubmissionList />} />
+
         <Route
           path="/admin-dashboard"
           element={
@@ -65,6 +70,3 @@ function App() {
 }
 
 export default App
-
-
-
