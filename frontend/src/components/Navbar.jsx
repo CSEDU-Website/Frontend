@@ -3,8 +3,18 @@ import { Link } from 'react-router-dom';
 
 const Navbar = () => {
   // Check if user is logged in
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
   const isLoggedIn = user.isAuthenticated;
+
+  const handleDashboardRedirect = () => {
+    if (user.role === 'student') {
+      window.location.href = '/student-dashboard';
+    } else if (user.role === 'teacher') {
+      window.location.href = '/teacher-dashboard';
+    } else if (user.role === 'admin') {
+      window.location.href = '/admin-dashboard';
+    }
+  };
 
   return (
     <nav className="bg-slate-800 text-white shadow-lg">
@@ -29,12 +39,12 @@ const Navbar = () => {
             {isLoggedIn ? (
               <div className="flex items-center space-x-4">
                 <span className="text-sm">{user.fullname}</span>
-                <Link 
-                  to={`/${user.role}-dashboard`} 
+                <button 
+                  onClick={handleDashboardRedirect}
                   className="py-2 px-3 bg-slate-600 hover:bg-slate-700 text-white rounded transition duration-300"
                 >
                   Dashboard
-                </Link>
+                </button>
                 <button 
                   onClick={() => {
                     localStorage.removeItem('user');
