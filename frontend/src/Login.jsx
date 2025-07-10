@@ -28,7 +28,6 @@ import {
   ClipboardCheck,
   FileText,
   Package,
-  ArrowLeft, // Add ArrowLeft icon
 } from "lucide-react";
 
 import axios from "axios";
@@ -70,21 +69,18 @@ export default function Dashboard() {
 
   const [studentProfile, setStudentProfile] = useState({});
 
-  // Add redirect protection - ensure user is authenticated
   useEffect(() => {
     const storedUser =
       JSON.parse(localStorage.getItem("user")) ||
       JSON.parse(sessionStorage.getItem("user"));
 
-    if (!storedUser?.isAuthenticated) {
-      navigate("/login");
-      return;
-    }
+    console.log("stored user: ");
+    console.log(storedUser);
 
     if (storedUser?.isAuthenticated && !user) {
       setUser(storedUser);
     }
-  }, [navigate, user]);
+  }, []);
 
   useEffect(() => {
     const fetchStudent = async (userId) => {
@@ -136,17 +132,8 @@ export default function Dashboard() {
     <div className="min-h-screen bg-slate-50 text-slate-900">
       {/* Header */}
       <div className="flex justify-between items-center p-4 bg-white shadow-sm">
-        <div className="flex items-center gap-4">
-          <Link
-            to="/"
-            className="flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors"
-          >
-            <ArrowLeft size={20} />
-            <span className="text-sm font-medium">Return to Home</span>
-          </Link>
-          <div className="text-xl font-bold">
-            Good Morning, {studentProfile?.last_name || "Student"}
-          </div>
+        <div className="text-xl font-bold">
+          Good Morning, {studentProfile?.last_name || "Student"}
         </div>
         <div className="flex items-center gap-4">
           <div className="relative">
@@ -171,17 +158,11 @@ export default function Dashboard() {
             <Home size={16} />
             Dashboard
           </button>
-          <button
-            onClick={() => navigate("/enroll-course")}
-            className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 transition-colors"
-          >
+          <button className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 transition-colors">
             <Plus size={16} />
             Enroll in New Course
           </button>
-          <button
-            onClick={() => navigate("/my-courses")}
-            className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 transition-colors"
-          >
+          <button className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 transition-colors">
             <BookOpen size={16} />
             My Courses
           </button>
