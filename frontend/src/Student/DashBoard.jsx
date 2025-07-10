@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom"; // Add useNavigate
+import { Link, useNavigate } from "react-router-dom";
 import {
   BarChart,
   Bar,
@@ -27,7 +27,7 @@ import {
   BookOpen,
   ClipboardCheck,
   FileText,
-  Package, // Add Package icon for Resource Hub
+  Package,
 } from "lucide-react";
 
 import axios from "axios";
@@ -58,7 +58,7 @@ const chartData = [
 ];
 
 export default function Dashboard() {
-  const navigate = useNavigate(); // Add navigation hook
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [studentInfo, setStudentInfo] = useState({
     num_classes_today: 0,
@@ -80,7 +80,7 @@ export default function Dashboard() {
     if (storedUser?.isAuthenticated && !user) {
       setUser(storedUser);
     }
-  }, []); // Empty dependency array ensures this runs once on mount
+  }, []);
 
   useEffect(() => {
     const fetchStudent = async (userId) => {

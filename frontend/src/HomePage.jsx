@@ -69,7 +69,6 @@ function HomePage() {
     }
   ];
 
-  // New data for enhanced sections
   const facultySpotlight = {
     name: "Dr. Sarah Johnson",
     position: "Professor of Computer Science",
@@ -374,7 +373,6 @@ function HomePage() {
               </div>
             </div>
             
-            {/* Navigation buttons */}
             <button 
               onClick={prevSlide}
               className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-white p-3 rounded-full shadow-lg hover:bg-slate-100 transition-colors"
@@ -388,7 +386,6 @@ function HomePage() {
               <ChevronRight size={24} className="text-slate-600" />
             </button>
             
-            {/* Dots indicator */}
             <div className="flex justify-center mt-6 space-x-2">
               {newsItems.map((_, index) => (
                 <button
@@ -645,7 +642,7 @@ function HomePage() {
             </div>
           </div>
           <div className="mt-8 text-center text-sm">
-            <p>© 2023 Department of Computer Science & Engineering, University of Dhaka. All rights reserved.</p>
+            <p>© 2025 Department of Computer Science & Engineering, University of Dhaka. All rights reserved.</p>
           </div>
         </div>
       </footer>
