@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Search,
   UserCircle2,
   Eye,
   EyeOff,
+  ArrowLeft,
   MapPin,
   Plus,
   Square,
@@ -37,6 +39,9 @@ const SettingsPage = () => {
 
   const [user, setUser] = useState(null);
   const [studentProfile, setStudentProfile] = useState({});
+  const [originalProfile, setOriginalProfile] = useState({});
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const storedUser =
@@ -82,15 +87,48 @@ const SettingsPage = () => {
       setDescription(studentProfile?.bio);
       setPhone(studentProfile?.phone);
       setProfileImg(studentProfile?.profile_image);
+
+      // Store original profile for comparison
+      setOriginalProfile({
+        first_name: studentProfile?.first_name,
+        last_name: studentProfile?.last_name,
+        bio: studentProfile?.bio,
+        phone: studentProfile?.phone,
+        profile_image: studentProfile?.profile_image,
+      });
     }
   }, [studentProfile]);
+
+  // Check for unsaved changes
+  useEffect(() => {
+    const hasChanges =
+      firstName !== originalProfile.first_name ||
+      lastName !== originalProfile.last_name ||
+      description !== originalProfile.bio ||
+      phone !== originalProfile.phone ||
+      preview !== null;
+
+    setHasUnsavedChanges(hasChanges);
+  }, [firstName, lastName, description, phone, preview, originalProfile]);
+
+  const handleBackClick = (e) => {
+    if (hasUnsavedChanges) {
+      e.preventDefault();
+      const shouldDiscard = window.confirm(
+        "You have unsaved changes. Are you sure you want to go back? Your changes will be discarded."
+      );
+      if (shouldDiscard) {
+        navigate("/student-dashboard");
+      }
+    }
+  };
 
   const handleSubmit = async (event) => {
     event.preventDefault(); // Prevent full page reload
 
     try {
       // Your existing submit logic...
-      setProfileImg(""); // or your actual logic
+      // setProfileImg(""); // or your actual logic
 
       const payload = {
         first_name: firstName,
@@ -108,47 +146,31 @@ const SettingsPage = () => {
 
       alert("Profile updated!");
       setStudentProfile(res.data);
+      setHasUnsavedChanges(false);
+      setPreview(null);
     } catch (err) {
       console.error("Update failed:", err);
       alert("Failed to update profile.");
     }
   };
 
-    const handlePasswordChange = async (e) => {
-        e.preventDefault();
-
-        if(!user?.email || !oldPass || !newPass) return;
-
-
-        try {
-        const payload = {
-            email: user?.email, // use email from state
-            old_pass: oldPass,
-            new_pass: newPass,
-        };
-
-        const res = await axios.post(
-            `${BACKEND_URL}/v1/auth/password_change`,
-            payload
-        );
-        alert(res.data.message || "Password changed successfully!");
-        setOldPass("");
-        setNewPass("");
-        setConfirmPass("");
-        } catch (err) {
-        alert(
-            err.response?.data?.detail || "Failed to change password"
-        );
-        }
-    }
-
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
       <header className="flex justify-between items-center px-6 py-4 bg-white shadow">
-        <h1 className="text-2xl font-semibold text-gray-800">
-          Good Morning, {studentProfile?.last_name || "Student"}
-        </h1>
+        <div className="flex items-center gap-4">
+          <Link
+            to="/student-dashboard"
+            className="flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors"
+            onClick={handleBackClick}
+          >
+            <ArrowLeft size={20} />
+            <span className="text-sm font-medium">Back to Dashboard</span>
+          </Link>
+          <h1 className="text-2xl font-semibold text-gray-800">
+            Good Morning, {studentProfile?.last_name || "Student"}
+          </h1>
+        </div>
         <div className="flex items-center gap-4">
           <div className="relative">
             <input
@@ -164,6 +186,15 @@ const SettingsPage = () => {
 
       {/* Main content */}
       <main className="flex-1 max-w-5xl mx-auto px-6 py-8 w-full">
+        {/* Unsaved changes indicator */}
+        {hasUnsavedChanges && (
+          <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-yellow-800 text-sm">
+              You have unsaved changes. Don't forget to save your profile updates.
+            </p>
+          </div>
+        )}
+
         {/* Account Settings */}
         <section className="mb-12">
           <h2 className="text-xl font-bold mb-6 text-gray-800">
@@ -205,6 +236,7 @@ const SettingsPage = () => {
                   // ⛔ Don't upload yet
                   // ✅ Just prepare to send the file later or path after upload
                   setProfileImg(file); // Store file temporarily
+                  console.log("Selected file:", file);
                 }}
                 className="hidden"
                 id="upload"
@@ -310,103 +342,7 @@ const SettingsPage = () => {
             </form>
           </div>
         </section>
-
-        {/* Change Password */}
-        <section>
-          <h2 className="text-xl font-bold mb-6 text-gray-800">
-            Change password
-          </h2>
-          <form
-            className="max-w-md bg-white p-6 rounded-lg shadow space-y-6"
-            onSubmit={handlePasswordChange}
-          >
-            {/* Old Password */}
-            <div>
-              <label className="block font-semibold mb-1 text-gray-700">
-                Current Password
-              </label>
-              <input
-                type="password"
-                value={oldPass}
-                onChange={(e) => setOldPass(e.target.value)}
-                placeholder="Current Password"
-                className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-orange-400"
-                required
-              />
-            </div>
-
-            {/* New Password */}
-            <div>
-              <label className="block font-semibold mb-1 text-gray-700">
-                New Password
-              </label>
-              <div className="relative">
-                <input
-                  type={showNew ? "text" : "password"}
-                  value={newPass}
-                  onChange={(e) => setNewPass(e.target.value)}
-                  placeholder="New Password"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-orange-400"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowNew(!showNew)}
-                  className="absolute right-2 top-2 text-gray-500 hover:text-gray-700"
-                  tabIndex={-1}
-                >
-                  {showNew ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-            </div>
-
-            {/* Confirm Password */}
-            <div>
-              <label className="block font-semibold mb-1 text-gray-700">
-                Confirm new password
-              </label>
-              <div className="relative">
-                <input
-                  type={showConfirm ? "text" : "password"}
-                  value={confirmPass}
-                  onChange={(e) => setConfirmPass(e.target.value)}
-                  placeholder="Confirm new password"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-orange-400"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirm(!showConfirm)}
-                  className="absolute right-2 top-2 text-gray-500 hover:text-gray-700"
-                  tabIndex={-1}
-                >
-                  {showConfirm ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-            </div>
-
-            {/* Submit button */}
-            <button
-              type="submit"
-              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 rounded-md transition"
-            >
-              Change Password
-            </button>
-          </form>
-        </section>
       </main>
-
-      {/* Footer toolbar */}
-      <footer className="bg-white shadow-inner py-3 px-6 flex justify-between max-w-5xl mx-auto sticky bottom-0">
-        <MapPin className="w-6 h-6 text-gray-600 cursor-pointer hover:text-orange-500" />
-        <Plus className="w-6 h-6 text-gray-600 cursor-pointer hover:text-orange-500" />
-        <Square className="w-6 h-6 text-gray-600 cursor-pointer hover:text-orange-500" />
-        <Camera className="w-6 h-6 text-gray-600 cursor-pointer hover:text-orange-500" />
-        <Type className="w-6 h-6 text-gray-600 cursor-pointer hover:text-orange-500" />
-        <Plus className="w-6 h-6 text-gray-600 cursor-pointer hover:text-orange-500" />
-        <Settings className="w-6 h-6 text-gray-600 cursor-pointer hover:text-orange-500" />
-        <Code className="w-6 h-6 text-gray-600 cursor-pointer hover:text-orange-500" />
-      </footer>
     </div>
   );
 };
