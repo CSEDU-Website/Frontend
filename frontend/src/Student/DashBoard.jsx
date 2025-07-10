@@ -152,7 +152,7 @@ export default function Dashboard() {
 
       {/* Tabs */}
       <div className="flex gap-4 p-4">
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-100 text-blue-800">
+        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 text-slate-800">
           <BookOpen />
           <span>Classes</span>
           <span className="text-sm font-bold">
@@ -160,7 +160,7 @@ export default function Dashboard() {
           </span>
         </div>
 
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-green-100 text-green-800">
+        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 text-gray-800">
           <ClipboardCheck />
           <span>Assignments</span>
           <span className="text-sm font-bold">
@@ -168,7 +168,7 @@ export default function Dashboard() {
           </span>
         </div>
 
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-yellow-100 text-yellow-800">
+        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-200 text-slate-800">
           <FlaskConical />
           <span>Labs</span>
           <span className="text-sm font-bold">
@@ -176,7 +176,7 @@ export default function Dashboard() {
           </span>
         </div>
 
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-100 text-red-800">
+        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-200 text-gray-800">
           <FileText/>
           <span>Quizzes</span>
           <span className="text-sm font-bold">
@@ -219,7 +219,7 @@ export default function Dashboard() {
                   className="h-24 object-contain mb-2"
                 />
                 <div className="mb-2 font-medium text-center">{item.label}</div>
-                <button className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700">
+                <button className="text-sm bg-slate-600 text-white px-3 py-1 rounded hover:bg-slate-700">
                   Mark Completed
                 </button>
               </div>
@@ -269,7 +269,7 @@ export default function Dashboard() {
         <Square />
         <Camera />
         <Text />
-        <Plus className="bg-blue-600 text-white p-1 rounded-full" />
+        <Plus className="bg-slate-600 text-white p-1 rounded-full" />
         <Settings />
         <Code2 />
       </div>
