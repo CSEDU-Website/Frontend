@@ -6,6 +6,7 @@ const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 const CreateNewCourse = () => {
   const [user, setUser] = useState(null);
   const [teacherProfile, setTeacherProfile] = useState({});
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const storedUser =
@@ -57,156 +58,255 @@ const CreateNewCourse = () => {
     description: "",
     other_links: "",
     semester: "",
-    batch: null,
+    batch: "",
     type: "Theory",
-    teacher_id: null,
-    image_url: "", // optional: set to "" to use random image from backend
+    image_url: "",
   });
 
+  const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.title.trim()) {
+      newErrors.title = "Course title is required";
+    }
+
+    if (!formData.semester) {
+      newErrors.semester = "Semester is required";
+    }
+
+    if (!formData.batch) {
+      newErrors.batch = "Batch is required";
+    } else if (isNaN(formData.batch) || formData.batch <= 0) {
+      newErrors.batch = "Batch must be a positive number";
+    }
+
+    if (!teacherProfile?.id) {
+      newErrors.teacher = "Teacher profile not loaded";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (
-      !formData?.semester ||
-      !formData?.batch ||
-      !formData?.title ||
-      !formData?.teacher_id
-    ) {
-      alert("Fill up the info");
-      console.log(formData);
+    if (!validateForm()) {
       return;
     }
 
-    const payload = {
-      title: formData.title,
-      description: formData.description || null,
-      other_links: formData.other_links || null,
-      semester: formData.semester,
-      batch: parseInt(formData.batch), // 👈 Ensure this is a number
-      type: formData.type, // "Theory" or "Lab"
-      image_url: formData.image_url || null,
-      teacher_id: teacherProfile?.id, // 👈 Ensure this exists
-    };
+    setLoading(true);
+    setMessage("");
 
-    console.log("payload");
-    console.log(payload);
+    const payload = {
+      title: formData.title.trim(),
+      description: formData.description.trim() || null,
+      other_links: formData.other_links.trim() || null,
+      semester: formData.semester,
+      batch: parseInt(formData.batch),
+      type: formData.type,
+      image_url: formData.image_url.trim() || null,
+      teacher_id: teacherProfile.id,
+    };
 
     try {
       const res = await axios.post(`${BACKEND_URL}/v1/courses/create`, payload);
-      setMessage(res.data.message || "Course created successfully");
+      setMessage({
+        type: "success",
+        text: res.data.message || "Course created successfully",
+      });
 
-      setFormData((prev) => ({
-        ...prev,
+      // Reset form
+      setFormData({
         title: "",
         description: "",
         other_links: "",
         semester: "",
-        batch: null,
+        batch: "",
+        type: "Theory",
         image_url: "",
-      }));
+      });
     } catch (err) {
       console.error("Failed to create course:", err);
-      setMessage("Failed to create course");
+      const errorMessage = err.response?.data?.detail || "Failed to create course";
+      setMessage({ type: "error", text: errorMessage });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-xl mx-auto p-6 bg-white shadow-md rounded">
-      <h2 className="text-2xl font-semibold mb-4">Create Course</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="text"
-          name="title"
-          placeholder="Course Title"
-          value={formData.title}
-          onChange={handleChange}
-          required
-          className="w-full px-3 py-2 border rounded"
-        />
+    <div className="max-w-2xl mx-auto">
+      <div className="bg-white shadow-lg rounded-lg p-8">
+        <h2 className="text-3xl font-bold text-gray-800 mb-6">
+          Create New Course
+        </h2>
 
-        <input
-          type="text"
-          name="description"
-          placeholder="Description"
-          value={formData.description}
-          onChange={handleChange}
-          className="w-full px-3 py-2 border rounded"
-        />
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Course Title */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Course Title *
+            </label>
+            <input
+              type="text"
+              name="title"
+              placeholder="Enter course title"
+              value={formData.title}
+              onChange={handleChange}
+              className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
+                errors.title ? "border-red-500" : "border-gray-300"
+              }`}
+            />
+            {errors.title && (
+              <p className="text-red-500 text-sm mt-1">{errors.title}</p>
+            )}
+          </div>
 
-        {/* <input
-          type="text"
-          name="other_links"
-          placeholder="Other Links"
-          value={formData.other_links}
-          onChange={handleChange}
-          className="w-full px-3 py-2 border rounded"
-        /> */}
+          {/* Description */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Description
+            </label>
+            <textarea
+              name="description"
+              placeholder="Enter course description"
+              value={formData.description}
+              onChange={handleChange}
+              rows="4"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            />
+          </div>
 
-        <select
-          name="semester"
-          value={formData.semester}
-          onChange={handleChange}
-          required
-          className="w-full px-3 py-2 border rounded"
-        >
-          <option value="" disabled>
-            Select Semester
-          </option>
-          <option value="1-1">1-1</option>
-          <option value="1-2">1-2</option>
-          <option value="2-1">2-1</option>
-          <option value="2-2">2-2</option>
-          <option value="3-1">3-1</option>
-          <option value="3-2">3-2</option>
-          <option value="4-1">4-1</option>
-          <option value="4-2">4-2</option>
-        </select>
+          {/* Semester and Batch */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Semester *
+              </label>
+              <select
+                name="semester"
+                value={formData.semester}
+                onChange={handleChange}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
+                  errors.semester ? "border-red-500" : "border-gray-300"
+                }`}
+              >
+                <option value="">Select Semester</option>
+                <option value="1-1">1-1</option>
+                <option value="1-2">1-2</option>
+                <option value="2-1">2-1</option>
+                <option value="2-2">2-2</option>
+                <option value="3-1">3-1</option>
+                <option value="3-2">3-2</option>
+                <option value="4-1">4-1</option>
+                <option value="4-2">4-2</option>
+              </select>
+              {errors.semester && (
+                <p className="text-red-500 text-sm mt-1">{errors.semester}</p>
+              )}
+            </div>
 
-        <input
-          type="text"
-          name="batch"
-          placeholder="Batch"
-          value={formData.batch}
-          onChange={handleChange}
-          required
-          className="w-full px-3 py-2 border rounded"
-        />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Batch *
+              </label>
+              <input
+                type="number"
+                name="batch"
+                placeholder="Enter batch number"
+                value={formData.batch}
+                onChange={handleChange}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent ${
+                  errors.batch ? "border-red-500" : "border-gray-300"
+                }`}
+              />
+              {errors.batch && (
+                <p className="text-red-500 text-sm mt-1">{errors.batch}</p>
+              )}
+            </div>
+          </div>
 
-        <select
-          name="type"
-          value={formData.type}
-          onChange={handleChange}
-          className="w-full px-3 py-2 border rounded"
-        >
-          <option value="Theory">Theory</option>
-          <option value="Lab">Lab</option>
-        </select>
+          {/* Course Type */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Course Type
+            </label>
+            <select
+              name="type"
+              value={formData.type}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            >
+              <option value="Theory">Theory</option>
+              <option value="Lab">Lab</option>
+            </select>
+          </div>
 
-        {/* <input
-          type="text"
-          name="image_url"
-          placeholder="Image URL (optional)"
-          value={formData.image_url}
-          onChange={handleChange}
-          className="w-full px-3 py-2 border rounded"
-        /> */}
+          {/* Image URL */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Course Image URL (Optional)
+            </label>
+            <input
+              type="url"
+              name="image_url"
+              placeholder="Enter image URL"
+              value={formData.image_url}
+              onChange={handleChange}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+            />
+            <p className="text-sm text-gray-500 mt-1">
+              Leave empty to use a random default image
+            </p>
+          </div>
 
-        <button
-          type="submit"
-          className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 rounded"
-        >
-          Create Course
-        </button>
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full py-3 px-6 rounded-lg font-semibold text-white transition-colors ${
+              loading
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-orange-500 hover:bg-orange-600 focus:ring-2 focus:ring-orange-500 focus:ring-offset-2"
+            }`}
+          >
+            {loading ? "Creating Course..." : "Create Course"}
+          </button>
+        </form>
 
-        {message && <p className="text-center mt-4 text-gray-700">{message}</p>}
-      </form>
+        {/* Message Display */}
+        {message && (
+          <div
+            className={`mt-6 p-4 rounded-lg ${
+              message.type === "success"
+                ? "bg-green-50 border border-green-200 text-green-800"
+                : "bg-red-50 border border-red-200 text-red-800"
+            }`}
+          >
+            {message.text}
+          </div>
+        )}
+
+        {errors.teacher && (
+          <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-800">{errors.teacher}</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

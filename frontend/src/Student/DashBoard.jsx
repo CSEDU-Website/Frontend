@@ -160,7 +160,20 @@ export default function Dashboard() {
               size={16}
             />
           </div>
-          <UserCircle className="text-slate-500" size={28} />
+          {studentProfile?.profile_image ? (
+            <img
+              src={studentProfile.profile_image}
+              alt="Profile"
+              className="w-7 h-7 rounded-full object-cover border border-slate-300 cursor-pointer hover:border-slate-400 transition-colors"
+              onClick={() => navigate("/settingspage")}
+            />
+          ) : (
+            <UserCircle 
+              className="text-slate-500 cursor-pointer hover:text-slate-700 transition-colors" 
+              size={28}
+              onClick={() => navigate("/settingspage")}
+            />
+          )}
         </div>
       </div>
 
@@ -196,7 +209,9 @@ export default function Dashboard() {
             <ClipboardList size={16} />
             Finance
           </button>
-          <button className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 transition-colors">
+          <button 
+            onClick={() => navigate("/settingspage")}
+            className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 transition-colors">
             <Settings size={16} />
             Settings
           </button>
@@ -316,7 +331,7 @@ export default function Dashboard() {
       </div>
 
       {/* Footer Icons */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white shadow-md p-2 flex justify-around">
+      {/* <div className="fixed bottom-0 left-0 right-0 bg-white shadow-md p-2 flex justify-around">
         <MapPin />
         <Plus />
         <Square />
@@ -325,7 +340,7 @@ export default function Dashboard() {
         <Plus className="bg-slate-600 text-white p-1 rounded-full" />
         <Settings />
         <Code2 />
-      </div>
+      </div> */}
     </div>
   );
 }
