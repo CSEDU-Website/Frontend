@@ -16,6 +16,9 @@ import ApplicationForm from './Admissions/ApplicationForm'
 import ApplicationSubmitted from './Admissions/ApplicationSubmitted'
 import TeacherClassroom from './Teacher/TeacherClassroom'
 import SubmissionList from './Teacher/SubmissionList'
+import PeopleDirectory from './pages/PeopleDirectory'
+import AboutChairman from './pages/AboutChairman'
+import DepartmentalMeetings from './pages/DepartmentalMeetings'
 
 function App() {
   return (
@@ -32,6 +35,9 @@ function App() {
         <Route path="/course/:courseId" element={<CourseDetails />} />
         <Route path="/apply" element={<ApplicationForm />} />
         <Route path="/application-submitted" element={<ApplicationSubmitted />} />
+        <Route path="/people" element={<PeopleDirectory />} />
+        <Route path="/chairman" element={<AboutChairman />} />
+        <Route path="/meetings" element={<DepartmentalMeetings />} />
 
         {/* Protected pages */}
         <Route
