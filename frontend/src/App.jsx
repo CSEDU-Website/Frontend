@@ -19,6 +19,7 @@ import SubmissionList from './Teacher/SubmissionList'
 import PeopleDirectory from './pages/PeopleDirectory'
 import AboutChairman from './pages/AboutChairman'
 import DepartmentalMeetings from './pages/DepartmentalMeetings'
+import ResourceHub from './Student/ResourceHub'
 
 function App() {
   return (
@@ -58,7 +59,6 @@ function App() {
         />
         <Route path="/teacher/classroom/:course_id" element={<TeacherClassroom />} />
         <Route path="/assignments/:assignmentId/submissions" element={<SubmissionList />} />
-
         <Route
           path="/admin-dashboard"
           element={
@@ -67,6 +67,7 @@ function App() {
             </RequireAuth>
           }
         />
+        <Route path="/resource-hub" element={<ResourceHub />} />
 
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />

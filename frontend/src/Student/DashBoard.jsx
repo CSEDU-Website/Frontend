@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   BarChart,
   Bar,
@@ -23,16 +24,15 @@ import {
   ChevronRight,
   Search,
   UserCircle,
-  BookOpen, ClipboardCheck, FileText
+  BookOpen,
+  ClipboardCheck,
+  FileText,
+  Package,
 } from "lucide-react";
-
-
 
 import axios from "axios";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
-
-
 
 const schedule = [
   { label: "Class CSE 4225", image: "/class.jpg" },
@@ -58,6 +58,7 @@ const chartData = [
 ];
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [studentInfo, setStudentInfo] = useState({
     num_classes_today: 0,
@@ -79,7 +80,7 @@ export default function Dashboard() {
     if (storedUser?.isAuthenticated && !user) {
       setUser(storedUser);
     }
-  }, []); // Empty dependency array ensures this runs once on mount
+  }, []);
 
   useEffect(() => {
     const fetchStudent = async (userId) => {
@@ -139,7 +140,7 @@ export default function Dashboard() {
             <input
               type="text"
               placeholder="Search..."
-              className="pl-10 pr-4 py-2 rounded-md border border-slate-300 focus:outline-none"
+              className="pl-10 pr-4 py-2 rounded-md border border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-500"
             />
             <Search
               className="absolute left-3 top-2.5 text-slate-400"
@@ -147,6 +148,39 @@ export default function Dashboard() {
             />
           </div>
           <UserCircle className="text-slate-500" size={28} />
+        </div>
+      </div>
+
+      {/* Navigation Tabs */}
+      <div className="bg-white border-b border-slate-200 px-4">
+        <div className="flex space-x-8 overflow-x-auto">
+          <button className="flex items-center gap-2 px-3 py-4 text-slate-600 border-b-2 border-slate-600 font-medium">
+            <Home size={16} />
+            Dashboard
+          </button>
+          <button className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 transition-colors">
+            <Plus size={16} />
+            Enroll in New Course
+          </button>
+          <button className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 transition-colors">
+            <BookOpen size={16} />
+            My Courses
+          </button>
+          <button
+            onClick={() => navigate("/resource-hub")}
+            className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 transition-colors"
+          >
+            <Package size={16} />
+            Resource Hub
+          </button>
+          <button className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 transition-colors">
+            <ClipboardList size={16} />
+            Finance
+          </button>
+          <button className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 transition-colors">
+            <Settings size={16} />
+            Settings
+          </button>
         </div>
       </div>
 
@@ -177,7 +211,7 @@ export default function Dashboard() {
         </div>
 
         <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-200 text-gray-800">
-          <FileText/>
+          <FileText />
           <span>Quizzes</span>
           <span className="text-sm font-bold">
             {studentInfo.num_quizzes_today}
