@@ -6,6 +6,7 @@ import React from "react";
 import Dashboard from "./DashBoard";
 import SettingsPage from "./Settings";
 import Enroll from "./Enroll";
+import Finance from "./Finance";
 
 
 
@@ -17,13 +18,13 @@ const StudentDashboard = () => {
       case "Dashboard":
         return <Dashboard />;
       case "Enroll in a new course":
-        return <Enroll/>
+        return <Enroll />
       case "My courses":
         return <h1 className="text-xl">📚 Courses Page</h1>;
       case "Finance":
-        return <h1 className="text-xl">👨‍🎓 Finance Page</h1>;
+        return <Finance />;
       case "settings":
-        return <SettingsPage/>
+        return <SettingsPage />
       default:
         return <h1 className="text-xl">404 Not Found</h1>;
     }

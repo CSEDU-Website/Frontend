@@ -205,7 +205,10 @@ export default function Dashboard() {
             <Package size={16} />
             Resource Hub
           </button>
-          <button className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 transition-colors">
+          <button 
+            onClick={() => navigate("/finance")}
+            className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 transition-colors"
+          >
             <ClipboardList size={16} />
             Finance
           </button>

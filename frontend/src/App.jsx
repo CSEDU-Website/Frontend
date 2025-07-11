@@ -25,6 +25,7 @@ import EnrollCourse from './Student/EnrollCourse'
 import MyCourses from './Student/MyCourses'
 import ArchivedCourses from './Student/ArchivedCourses'
 import SettingsPage from './Student/Settings'
+import Finance from './Student/Finance'
 
 function App() {
   return (
@@ -77,6 +78,7 @@ function App() {
         <Route path="/archived-courses" element={<ArchivedCourses />} />
         <Route path="/resource-hub" element={<ResourceHub />} />
         <Route path='/settingspage' element={<SettingsPage />} />
+        <Route path="/finance" element={<Finance />} />
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
