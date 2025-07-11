@@ -93,13 +93,15 @@ const TeacherSettings = () => {
       
       // Handle profile image from backend
       if (teacherProfile?.profile_image) {
-        // Check if it's a path or base64
-        if (teacherProfile.profile_image.startsWith('/')) {
-          setProfileImgPath(teacherProfile.profile_image);
-          setProfileImg(teacherProfile.profile_image);
-        } else {
-          setProfileImg(`data:image/jpeg;base64,${teacherProfile.profile_image}`);
-        }
+        // // Check if it's a path or base64
+        // if (teacherProfile.profile_image.startsWith('/')) {
+        //   setProfileImgPath(teacherProfile.profile_image);
+        //   setProfileImg(teacherProfile.profile_image);
+        // } else {
+        //   setProfileImg(`data:image/jpeg;base64,${teacherProfile.profile_image}`);
+        // }
+        setProfileImgPath(teacherProfile.profile_image);
+        setProfileImg(teacherProfile.profile_image);
       }
 
       // Store original profile for comparison
@@ -230,10 +232,10 @@ const TeacherSettings = () => {
     if (!file) return;
 
     // Validate file size (1MB limit)
-    if (file.size > 1024 * 1024) {
-      alert("File size must be under 1MB");
-      return;
-    }
+    // if (file.size > 1024 * 1024) {
+    //   alert("File size must be under 1MB");
+    //   return;
+    // }
 
     try {
       setUploadingImage(true);
@@ -254,7 +256,7 @@ const TeacherSettings = () => {
       );
 
       // Get the file path from response
-      const filePath = response.data;
+      const filePath = response.data?.url;
       setProfileImgPath(filePath);
       
       // Create a preview URL
