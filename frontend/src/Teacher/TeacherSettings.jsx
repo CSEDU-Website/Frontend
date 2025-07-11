@@ -25,7 +25,8 @@ const TeacherSettings = () => {
   const [work, setWork] = useState("");
   const [bio, setBio] = useState("");
   const [profileImg, setProfileImg] = useState("");
-  const [profileImgBase64, setProfileImgBase64] = useState("");
+  const [profileImgPath, setProfileImgPath] = useState(""); // Added state for image path
+  const [uploadingImage, setUploadingImage] = useState(false); // Added state for upload status
 
   // Profile links
   const [website, setWebsite] = useState("");
@@ -90,9 +91,15 @@ const TeacherSettings = () => {
       setWhatsapp(teacherProfile?.whatsapp || "");
       setResearchgate(teacherProfile?.researchgate || "");
       
-      // Handle base64 image from backend
+      // Handle profile image from backend
       if (teacherProfile?.profile_image) {
-        setProfileImg(`data:image/jpeg;base64,${teacherProfile.profile_image}`);
+        // Check if it's a path or base64
+        if (teacherProfile.profile_image.startsWith('/')) {
+          setProfileImgPath(teacherProfile.profile_image);
+          setProfileImg(teacherProfile.profile_image);
+        } else {
+          setProfileImg(`data:image/jpeg;base64,${teacherProfile.profile_image}`);
+        }
       }
 
       // Store original profile for comparison
@@ -131,10 +138,11 @@ const TeacherSettings = () => {
       twitter !== originalProfile.twitter ||
       whatsapp !== originalProfile.whatsapp ||
       researchgate !== originalProfile.researchgate ||
-      preview !== null;
+      preview !== null || 
+      profileImgPath !== originalProfile.profile_image;
 
     setHasUnsavedChanges(hasChanges);
-  }, [firstName, lastName, department, phone, work, bio, website, googleScholar, academia, linkedin, twitter, whatsapp, researchgate, preview, originalProfile]);
+  }, [firstName, lastName, department, phone, work, bio, website, googleScholar, academia, linkedin, twitter, whatsapp, researchgate, preview, profileImgPath, originalProfile]);
 
   const handleBackClick = (e) => {
     if (hasUnsavedChanges) {
@@ -159,7 +167,7 @@ const TeacherSettings = () => {
         phone: phone,
         work: work,
         bio: bio,
-        profile_image: profileImgBase64 || null,
+        profile_image: profileImgPath || null, // Use image path instead of base64
         website: website,
         google_scholar: googleScholar,
         academia: academia,
@@ -178,7 +186,6 @@ const TeacherSettings = () => {
       alert("Profile updated successfully!");
       setHasUnsavedChanges(false);
       setPreview(null);
-      setProfileImgBase64("");
       
       // Auto reload the page to refresh all data
       window.location.reload();
@@ -218,6 +225,53 @@ const TeacherSettings = () => {
     }
   };
 
+  // Function to handle image upload to the server
+  const handleImageUpload = async (file) => {
+    if (!file) return;
+
+    // Validate file size (1MB limit)
+    if (file.size > 1024 * 1024) {
+      alert("File size must be under 1MB");
+      return;
+    }
+
+    try {
+      setUploadingImage(true);
+      
+      // Create form data for file upload
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // Send file to backend
+      const response = await axios.post(
+        `${BACKEND_URL}/utility/upload`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      // Get the file path from response
+      const filePath = response.data;
+      setProfileImgPath(filePath);
+      
+      // Create a preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+      
+    } catch (error) {
+      console.error("Image upload failed:", error);
+      alert("Failed to upload image. Please try again.");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
     
@@ -254,34 +308,22 @@ const TeacherSettings = () => {
                 accept="image/*"
                 onChange={(e) => {
                   const file = e.target.files[0];
-                  if (!file) return;
-
-                  // Validate file size (1MB limit)
-                  if (file.size > 1024 * 1024) {
-                    alert("File size must be under 1MB");
-                    return;
+                  if (file) {
+                    handleImageUpload(file);
                   }
-
-                  const reader = new FileReader();
-                  reader.onloadend = () => {
-                    const base64String = reader.result;
-                    setPreview(base64String);
-                    
-                    // Extract base64 data (remove data:image/...;base64, prefix)
-                    const base64Data = base64String.split(',')[1];
-                    setProfileImgBase64(base64Data);
-                  };
-                  reader.readAsDataURL(file);
                 }}
                 className="hidden"
                 id="upload"
+                disabled={uploadingImage}
               />
 
               <label
                 htmlFor="upload"
-                className="text-orange-500 font-semibold cursor-pointer hover:underline"
+                className={`text-orange-500 font-semibold cursor-pointer hover:underline ${
+                  uploadingImage ? 'opacity-50' : ''
+                }`}
               >
-                Upload Photo
+                {uploadingImage ? "Uploading..." : "Upload Photo"}
               </label>
 
               <p className="mt-2 text-sm text-gray-500 text-center">
