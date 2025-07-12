@@ -15,10 +15,13 @@ import {
   XCircle,
   Eye,
   Download,
-  Mail
+  Mail,
+  ArrowLeft
 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const ResourceHub = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('equipment');
   const [selectedEquipment, setSelectedEquipment] = useState(null);
   const [projectFilters, setProjectFilters] = useState({
@@ -356,6 +359,15 @@ const ResourceHub = () => {
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 py-4">
+          <div className="flex items-center gap-4 mb-2">
+            <Link 
+              to="/student-dashboard" 
+              className="flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors"
+            >
+              <ArrowLeft size={20} />
+              <span className="text-sm font-medium">Back to Dashboard</span>
+            </Link>
+          </div>
           <h1 className="text-2xl font-bold text-slate-800">Resource Hub</h1>
           <p className="text-slate-600">Book lab equipment and explore student projects</p>
         </div>

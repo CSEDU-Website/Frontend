@@ -26,6 +26,7 @@ import MyCourses from './Student/MyCourses'
 import ArchivedCourses from './Student/ArchivedCourses'
 import SettingsPage from './Student/Settings'
 import Finance from './Student/Finance'
+import NoticeBoard from './pages/NoticeBoard'
 
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
         <Route path="/people" element={<PeopleDirectory />} />
         <Route path="/chairman" element={<AboutChairman />} />
         <Route path="/meetings" element={<DepartmentalMeetings />} />
+        <Route path="/notice-board" element={<NoticeBoard />} />
 
         {/* Protected pages */}
         <Route

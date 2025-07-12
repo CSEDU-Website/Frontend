@@ -31,6 +31,8 @@ const SettingsPage = () => {
   const [description, setDescription] = useState("");
   const [phone, setPhone] = useState("");
   const [profileImg, setProfileImg] = useState("");
+  const [profileImgPath, setProfileImgPath] = useState(""); // Added state for image path
+  const [uploadingImage, setUploadingImage] = useState(false); // Added state for upload status
 
   const [preview, setPreview] = useState(null);
   const [oldPass, setOldPass] = useState("");
@@ -86,7 +88,12 @@ const SettingsPage = () => {
       setLastName(studentProfile?.last_name);
       setDescription(studentProfile?.bio);
       setPhone(studentProfile?.phone);
-      setProfileImg(studentProfile?.profile_image);
+      
+      // Handle profile image from backend
+      if (studentProfile?.profile_image) {
+        setProfileImgPath(studentProfile.profile_image);
+        setProfileImg(studentProfile.profile_image);
+      }
 
       // Store original profile for comparison
       setOriginalProfile({
@@ -106,10 +113,11 @@ const SettingsPage = () => {
       lastName !== originalProfile.last_name ||
       description !== originalProfile.bio ||
       phone !== originalProfile.phone ||
-      preview !== null;
+      preview !== null ||
+      profileImgPath !== originalProfile.profile_image;
 
     setHasUnsavedChanges(hasChanges);
-  }, [firstName, lastName, description, phone, preview, originalProfile]);
+  }, [firstName, lastName, description, phone, preview, profileImgPath, originalProfile]);
 
   const handleBackClick = (e) => {
     if (hasUnsavedChanges) {
@@ -123,20 +131,58 @@ const SettingsPage = () => {
     }
   };
 
+  // Function to handle image upload to the server
+  const handleImageUpload = async (file) => {
+    if (!file) return;
+
+    try {
+      setUploadingImage(true);
+      
+      // Create form data for file upload
+      const formData = new FormData();
+      formData.append('file', file);
+
+      // Send file to backend
+      const response = await axios.post(
+        `${BACKEND_URL}/utility/upload`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      // Get the file path from response
+      const filePath = response.data?.url;
+      setProfileImgPath(filePath);
+      
+      // Create a preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+      
+    } catch (error) {
+      console.error("Image upload failed:", error);
+      alert("Failed to upload image. Please try again.");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault(); // Prevent full page reload
 
     try {
-      // Your existing submit logic...
-      // setProfileImg(""); // or your actual logic
-
       const payload = {
         first_name: firstName,
         last_name: lastName,
         phone: phone,
         bio: description,
         batch: studentProfile.batch,
-        profile_image: "", // or updated path
+        profile_image: profileImgPath || "", // Use image path instead of base64
       };
 
       const res = await axios.put(
@@ -171,17 +217,7 @@ const SettingsPage = () => {
             Good Morning, {studentProfile?.last_name || "Student"}
           </h1>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <input
-              type="search"
-              placeholder="Search"
-              className="pl-10 pr-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-400"
-            />
-            <Search className="w-5 h-5 text-gray-400 absolute left-3 top-2.5 pointer-events-none" />
-          </div>
-          <UserCircle2 className="w-10 h-10 text-gray-600 cursor-pointer" />
-        </div>
+        
       </header>
 
       {/* Main content */}
@@ -226,27 +262,22 @@ const SettingsPage = () => {
                 accept="image/*"
                 onChange={(e) => {
                   const file = e.target.files[0];
-                  if (!file) return;
-
-                  // Preview the image locally
-                  const reader = new FileReader();
-                  reader.onloadend = () => setPreview(reader.result);
-                  reader.readAsDataURL(file);
-
-                  // ⛔ Don't upload yet
-                  // ✅ Just prepare to send the file later or path after upload
-                  setProfileImg(file); // Store file temporarily
-                  console.log("Selected file:", file);
+                  if (file) {
+                    handleImageUpload(file);
+                  }
                 }}
                 className="hidden"
                 id="upload"
+                disabled={uploadingImage}
               />
 
               <label
                 htmlFor="upload"
-                className="text-orange-500 font-semibold cursor-pointer hover:underline"
+                className={`text-orange-500 font-semibold cursor-pointer hover:underline ${
+                  uploadingImage ? 'opacity-50' : ''
+                }`}
               >
-                Upload Photo
+                {uploadingImage ? "Uploading..." : "Upload Photo"}
               </label>
 
               <p className="mt-2 text-sm text-gray-500 text-center">

@@ -149,27 +149,19 @@ export default function Dashboard() {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search..."
-              className="pl-10 pr-4 py-2 rounded-md border border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-500"
-            />
-            <Search
-              className="absolute left-3 top-2.5 text-slate-400"
-              size={16}
-            />
-          </div>
+          
           {studentProfile?.profile_image ? (
             <img
               src={studentProfile.profile_image}
               alt="Profile"
-              className="w-7 h-7 rounded-full object-cover border border-slate-300 cursor-pointer hover:border-slate-400 transition-colors"
+              className="w-10 h-10 rounded-full object-cover border border-slate-300 cursor-pointer 
+                hover:border-slate-400 hover:shadow-lg hover:scale-110 transform transition-all duration-300"
               onClick={() => navigate("/settingspage")}
             />
           ) : (
             <UserCircle 
-              className="text-slate-500 cursor-pointer hover:text-slate-700 transition-colors" 
+              className="text-slate-500 cursor-pointer hover:text-slate-700 
+                hover:scale-110 transform transition-all duration-300" 
               size={28}
               onClick={() => navigate("/settingspage")}
             />
@@ -180,41 +172,47 @@ export default function Dashboard() {
       {/* Navigation Tabs */}
       <div className="bg-white border-b border-slate-200 px-4">
         <div className="flex space-x-8 overflow-x-auto">
-          <button className="flex items-center gap-2 px-3 py-4 text-slate-600 border-b-2 border-slate-600 font-medium">
+          <button className="flex items-center gap-2 px-3 py-4 text-slate-600 border-b-2 border-slate-600 font-medium
+            hover:bg-slate-50 transition-all duration-300">
             <Home size={16} />
             Dashboard
           </button>
           <button
             onClick={() => navigate("/enroll-course")}
-            className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 transition-colors"
+            className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 
+              hover:bg-slate-50 hover:scale-105 transform transition-all duration-300"
           >
             <Plus size={16} />
             Enroll in New Course
           </button>
           <button
             onClick={() => navigate("/my-courses")}
-            className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 transition-colors"
+            className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 
+              hover:bg-slate-50 hover:scale-105 transform transition-all duration-300"
           >
             <BookOpen size={16} />
             My Courses
           </button>
           <button
             onClick={() => navigate("/resource-hub")}
-            className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 transition-colors"
+            className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 
+              hover:bg-slate-50 hover:scale-105 transform transition-all duration-300"
           >
             <Package size={16} />
             Resource Hub
           </button>
           <button 
             onClick={() => navigate("/finance")}
-            className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 transition-colors"
+            className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 
+              hover:bg-slate-50 hover:scale-105 transform transition-all duration-300"
           >
             <ClipboardList size={16} />
             Finance
           </button>
           <button 
             onClick={() => navigate("/settingspage")}
-            className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 transition-colors">
+            className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 
+              hover:bg-slate-50 hover:scale-105 transform transition-all duration-300">
             <Settings size={16} />
             Settings
           </button>
@@ -223,7 +221,8 @@ export default function Dashboard() {
 
       {/* Tabs */}
       <div className="flex gap-4 p-4">
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 text-slate-800">
+        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 text-slate-800
+          hover:bg-slate-200 hover:shadow transition-all duration-300 cursor-pointer">
           <BookOpen />
           <span>Classes</span>
           <span className="text-sm font-bold">
@@ -231,27 +230,12 @@ export default function Dashboard() {
           </span>
         </div>
 
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 text-gray-800">
+        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 text-gray-800
+          hover:bg-gray-200 hover:shadow transition-all duration-300 cursor-pointer">
           <ClipboardCheck />
           <span>Assignments</span>
           <span className="text-sm font-bold">
             {studentInfo.num_assignments_remaining_today}
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-200 text-slate-800">
-          <FlaskConical />
-          <span>Labs</span>
-          <span className="text-sm font-bold">
-            {studentInfo.num_labs_today}
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-200 text-gray-800">
-          <FileText />
-          <span>Quizzes</span>
-          <span className="text-sm font-bold">
-            {studentInfo.num_quizzes_today}
           </span>
         </div>
       </div>

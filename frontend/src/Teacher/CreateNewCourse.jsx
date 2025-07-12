@@ -63,6 +63,10 @@ const CreateNewCourse = () => {
     image_url: "",
   });
 
+  const [schedules, setSchedules] = useState([
+    { day: "Sunday", start_time: "09:00" }
+  ]);
+
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState("");
 
@@ -83,6 +87,10 @@ const CreateNewCourse = () => {
       newErrors.batch = "Batch must be a positive number";
     }
 
+    if (schedules.length === 0) {
+      newErrors.schedules = "At least one schedule is required";
+    }
+
     if (!teacherProfile?.id) {
       newErrors.teacher = "Teacher profile not loaded";
     }
@@ -98,6 +106,23 @@ const CreateNewCourse = () => {
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors((prev) => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const handleScheduleChange = (index, field, value) => {
+    const updatedSchedules = [...schedules];
+    updatedSchedules[index][field] = value;
+    setSchedules(updatedSchedules);
+  };
+
+  const addSchedule = () => {
+    setSchedules([...schedules, { day: "Sunday", start_time: "09:00" }]);
+  };
+
+  const removeSchedule = (index) => {
+    if (schedules.length > 1) {
+      const updatedSchedules = schedules.filter((_, i) => i !== index);
+      setSchedules(updatedSchedules);
     }
   };
 
@@ -120,6 +145,8 @@ const CreateNewCourse = () => {
       type: formData.type,
       image_url: formData.image_url.trim() || null,
       teacher_id: teacherProfile.id,
+      schedules: schedules,
+      running: true, // Setting default as true for new courses
     };
 
     try {
@@ -139,6 +166,7 @@ const CreateNewCourse = () => {
         type: "Theory",
         image_url: "",
       });
+      setSchedules([{ day: "Sunday", start_time: "09:00" }]);
     } catch (err) {
       console.error("Failed to create course:", err);
       const errorMessage = err.response?.data?.detail || "Failed to create course";
@@ -272,6 +300,64 @@ const CreateNewCourse = () => {
             <p className="text-sm text-gray-500 mt-1">
               Leave empty to use a random default image
             </p>
+          </div>
+
+          {/* Schedules */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Course Schedule *
+            </label>
+            {schedules.map((schedule, index) => (
+              <div key={index} className="flex mb-3 space-x-2 items-end">
+                <div className="flex-1">
+                  <label className="block text-xs text-gray-500 mb-1">Day</label>
+                  <select
+                    value={schedule.day}
+                    onChange={(e) => handleScheduleChange(index, "day", e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  >
+                    <option value="Sunday">Sunday</option>
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                    <option value="Saturday">Saturday</option>
+                  </select>
+                </div>
+                <div className="flex-1">
+                  <label className="block text-xs text-gray-500 mb-1">Start Time</label>
+                  <input
+                    type="time"
+                    value={schedule.start_time}
+                    onChange={(e) => handleScheduleChange(index, "start_time", e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => removeSchedule(index)}
+                  disabled={schedules.length <= 1}
+                  className={`px-3 py-2 rounded-lg ${
+                    schedules.length <= 1
+                      ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                      : "bg-red-100 text-red-600 hover:bg-red-200"
+                  }`}
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={addSchedule}
+              className="mt-2 text-sm text-orange-600 hover:text-orange-800 flex items-center"
+            >
+              <span className="mr-1">+</span> Add Another Schedule
+            </button>
+            {errors.schedules && (
+              <p className="text-red-500 text-sm mt-1">{errors.schedules}</p>
+            )}
           </div>
 
           {/* Submit Button */}

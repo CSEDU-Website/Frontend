@@ -34,6 +34,7 @@ const Navbar = () => {
               <Link to="/chairman" className="py-4 px-2 hover:text-slate-300 transition duration-300">About Chairman</Link>
               <Link to="/admission-hub" className="py-4 px-2 hover:text-slate-300 transition duration-300">Admission Hub</Link>
               <Link to="/apply" className="py-4 px-2 hover:text-slate-300 transition duration-300">Apply Now</Link>
+              <Link to="/notice-board" className="py-4 px-2 hover:text-slate-300 transition duration-300">Notice Board</Link>
               <Link to="/meetings" className="py-4 px-2 hover:text-slate-300 transition duration-300">Departmental Meetings</Link>
             </div>
           </div>
@@ -125,6 +126,13 @@ const Navbar = () => {
             onClick={() => setIsMobileMenuOpen(false)}
           >
             Apply Now
+          </Link>
+          <Link 
+            to="/notice-board" 
+            className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-slate-700 flex items-center justify-between"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
+            Notices
           </Link>
           <Link 
             to="/meetings" 
