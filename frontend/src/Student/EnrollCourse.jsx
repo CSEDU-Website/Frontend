@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Search, UserCircle, AlertCircle, CheckCircle } from 'lucide-react';
+import { ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
@@ -13,10 +13,6 @@ const EnrollCourse = () => {
   const [message, setMessage] = useState({ type: '', text: '' });
   
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    registrationNumber: '',
-    email: '',
     courseCode: ''
   });
 
@@ -39,15 +35,6 @@ const EnrollCourse = () => {
           params: { user_id: userId },
         });
         setStudentProfile(response?.data);
-        
-        // Pre-fill form with student data
-        setFormData(prev => ({
-          ...prev,
-          firstName: response?.data?.first_name || '',
-          lastName: response?.data?.last_name || '',
-          registrationNumber: response?.data?.registration_number || '',
-          email: response?.data?.email || user?.email || ''
-        }));
       } catch (error) {
         console.error("Failed to fetch student:", error.response?.data || error.message);
       }
@@ -72,34 +59,27 @@ const EnrollCourse = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      // Simulate API call for course enrollment
-      const response = await axios.post(`${BACKEND_URL}/v1/student/enroll-course`, {
-        student_id: studentProfile.id,
-        course_code: formData.courseCode,
-        registration_number: formData.registrationNumber
-      });
+      // Using the correct API endpoint from StudentMyClassesApi.py
+      const response = await axios.get(
+        `${BACKEND_URL}/v1/student/courses/enroll_by_code/${studentProfile.id}/${formData.courseCode}`
+      );
 
-      if (response.data.success) {
-        setMessage({ 
-          type: 'success', 
-          text: 'Successfully enrolled in the course! You can now view it in "My Courses".' 
-        });
-        
-        // Reset course code field
-        setFormData(prev => ({ ...prev, courseCode: '' }));
-        
-        // Redirect to My Courses after 2 seconds
-        setTimeout(() => {
-          navigate('/my-courses');
-        }, 2000);
-      } else {
-        setMessage({ type: 'error', text: response.data.message || 'Enrollment failed. Please try again.' });
-      }
-    } catch (error) {
       setMessage({ 
-        type: 'error', 
-        text: error.response?.data?.message || 'Enrollment failed. Please check the course code and try again.' 
+        type: 'success', 
+        text: 'Successfully enrolled in the course! You can now view it in "My Courses".' 
       });
+      
+      // Reset course code field
+      setFormData(prev => ({ ...prev, courseCode: '' }));
+      
+      // Redirect to My Courses after 2 seconds
+      setTimeout(() => {
+        navigate('/my-courses');
+      }, 2000);
+      
+    } catch (error) {
+      const errorMessage = error.response?.data?.detail || 'Enrollment failed. Please check the course code and try again.';
+      setMessage({ type: 'error', text: errorMessage });
     } finally {
       setLoading(false);
     }
@@ -118,20 +98,7 @@ const EnrollCourse = () => {
             <span className="text-sm font-medium">Back to Dashboard</span>
           </Link>
           <div className="text-xl font-bold">
-            Good Morning
-          </div>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search"
-              className="pl-10 pr-4 py-2 rounded-md border border-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-500"
-            />
-            <Search className="absolute left-3 top-2.5 text-slate-400" size={16} />
-          </div>
-          <div className="w-8 h-8 bg-slate-300 rounded-full flex items-center justify-center">
-            <UserCircle className="text-slate-500" size={24} />
+            Enroll in Course
           </div>
         </div>
       </div>
@@ -140,7 +107,7 @@ const EnrollCourse = () => {
       <div className="max-w-2xl mx-auto px-4 py-12">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-slate-800 mb-2">Enroll in a new course</h1>
-          <p className="text-slate-600">Fill out the form below to enroll in a new course</p>
+          <p className="text-slate-600">Enter the course code provided by your instructor</p>
         </div>
 
         {/* Message Display */}
@@ -158,69 +125,7 @@ const EnrollCourse = () => {
         {/* Enrollment Form */}
         <div className="bg-white rounded-xl shadow-lg p-8">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Full Name */}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Full name
-              </label>
-              <div className="grid grid-cols-2 gap-4">
-                <input
-                  type="text"
-                  name="firstName"
-                  placeholder="First name"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 bg-slate-50"
-                  required
-                  readOnly
-                />
-                <input
-                  type="text"
-                  name="lastName"
-                  placeholder="Last name"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 bg-slate-50"
-                  required
-                  readOnly
-                />
-              </div>
-            </div>
-
-            {/* Registration Number */}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Registration Number
-              </label>
-              <input
-                type="text"
-                name="registrationNumber"
-                placeholder="Enter your Reg. Num."
-                value={formData.registrationNumber}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 bg-slate-50"
-                required
-                readOnly
-              />
-            </div>
-
-            {/* Email */}
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                name="email"
-                placeholder="Email address"
-                value={formData.email}
-                onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 bg-slate-50"
-                required
-                readOnly
-              />
-            </div>
-
+            
             {/* Course Code */}
             <div>
               <label className="block text-sm font-medium text-slate-700 mb-2">
@@ -230,10 +135,10 @@ const EnrollCourse = () => {
                 <input
                   type="text"
                   name="courseCode"
-                  placeholder="Code"
+                  placeholder="Enter course code"
                   value={formData.courseCode}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
+                  className="w-full px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                   required
                   maxLength={50}
                 />
@@ -242,14 +147,14 @@ const EnrollCourse = () => {
                 </div>
               </div>
               <p className="text-xs text-slate-500 mt-1">
-                Enter the course code (e.g., CSE 4225, MATH 101)
+                Enter the course code provided by your instructor.
               </p>
             </div>
 
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={loading || !formData.courseCode.trim()}
+              disabled={loading || !formData.courseCode.trim() || !studentProfile.id}
               className="w-full bg-orange-500 hover:bg-orange-600 disabled:bg-slate-300 text-white py-3 px-6 rounded-lg font-medium transition-colors disabled:cursor-not-allowed"
             >
               {loading ? 'Enrolling...' : 'Enroll'}
@@ -261,9 +166,9 @@ const EnrollCourse = () => {
             <h3 className="font-semibold text-slate-800 mb-2">Important Notes:</h3>
             <ul className="text-sm text-slate-600 space-y-1">
               <li>• Make sure the course code is correct before submitting</li>
-              <li>• Enrollment is subject to course availability and prerequisites</li>
-              <li>• You will receive a confirmation email once enrolled</li>
-              <li>• Contact the academic office for any enrollment issues</li>
+              <li>• Each course has a unique code that instructors provide</li>
+              <li>• Once enrolled, you'll have immediate access to course materials</li>
+              <li>• If you have trouble enrolling, contact your instructor</li>
             </ul>
           </div>
         </div>
