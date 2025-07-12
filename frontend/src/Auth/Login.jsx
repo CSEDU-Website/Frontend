@@ -54,20 +54,8 @@ function Login() {
         }))
       }
 
-      // Redirect based on role
-      switch (user.role) {
-        case 'student':
-          navigate('/student-dashboard')
-          break
-        case 'teacher':
-          navigate('/teacher-dashboard')
-          break
-        case 'admin':
-          navigate('/admin-dashboard')
-          break
-        default:
-          navigate('/')
-      }
+      // Always redirect to homepage instead of role-specific dashboard
+      navigate('/')
 
     } catch (err) {
       setError(err.response?.data?.detail || 'Login failed')
@@ -174,5 +162,7 @@ function Login() {
     </div>
   )
 }
+
+
 
 export default Login
