@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 import React from "react";
 
@@ -7,11 +6,14 @@ import Dashboard from "./DashBoard";
 import SettingsPage from "./Settings";
 import Enroll from "./Enroll";
 import Finance from "./Finance";
+import ResourceHub from "./ResourceHub";
+import StudentNotice from "./StudentNotice";
+import ResourceHubTest from "./ResourceHubTest";
 
 
 
 const StudentDashboard = () => {
-  const [activePage, setActivePage] = useState("Enroll in a new course");
+  const [activePage, setActivePage] = useState("Resource Hub");
 
   const renderPage = () => {
     switch (activePage) {
@@ -23,6 +25,10 @@ const StudentDashboard = () => {
         return <h1 className="text-xl">📚 Courses Page</h1>;
       case "Finance":
         return <Finance />;
+      case "Resource Hub":
+        return <ResourceHub />;
+      case "Notice Board":
+        return <StudentNotice />;
       case "settings":
         return <SettingsPage />
       default:
@@ -57,6 +63,18 @@ const StudentDashboard = () => {
           onClick={() => setActivePage("Finance")}
         >
           Finance
+        </button>
+        <button
+          className="w-full text-left hover:bg-slate-700 p-2 rounded"
+          onClick={() => setActivePage("Resource Hub")}
+        >
+          Resource Hub
+        </button>
+        <button
+          className="w-full text-left hover:bg-slate-700 p-2 rounded"
+          onClick={() => setActivePage("Notice Board")}
+        >
+          Notice Board
         </button>
         <button
           className="w-full text-left hover:bg-slate-700 p-2 rounded"

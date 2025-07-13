@@ -28,6 +28,7 @@ import {
   ClipboardCheck,
   FileText,
   Package,
+  Bell,
   ArrowLeft, // Add ArrowLeft icon
 } from "lucide-react";
 
@@ -200,6 +201,14 @@ export default function Dashboard() {
           >
             <Package size={16} />
             Resource Hub
+          </button>
+          <button 
+            onClick={() => navigate("/student-notice")}
+            className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 
+              hover:bg-slate-50 hover:scale-105 transform transition-all duration-300"
+          >
+            <Bell size={16} />
+            Notice Board
           </button>
           <button 
             onClick={() => navigate("/finance")}

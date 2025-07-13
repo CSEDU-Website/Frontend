@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { Calendar, Bell, User, ChevronRight, ExternalLink, FileText, Pin } from 'lucide-react';
@@ -18,31 +18,30 @@ const NoticeBoard = () => {
   const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
   const isLoggedIn = user.isAuthenticated;
   
-  // Extract batch from user profile - use it for filtering notices
-  const userBatch = user.studentProfile?.batch || null;
-  
   // Fetch notices when component mounts
   useEffect(() => {
     fetchNotices();
-  }, [userBatch]);
+  }, [fetchNotices]);
   
   // Fetch all upcoming notices using the API
-  const fetchNotices = async () => {
+  const fetchNotices = useCallback(async () => {
     setLoading(true);
     try {
-      let endpoint = `${BACKEND_URL}/student/notice/upcoming`;
-      
-      // If user is logged in and has a batch, include batch as query parameter
-      if (userBatch) {
-        endpoint += `?batch=${userBatch}`;
-      }
+      // Notices are sent to all batches, so no batch filtering needed
+      const endpoint = `${BACKEND_URL}/student/notice/upcoming`;
       
       const response = await axios.get(endpoint);
-      setNotices(response.data);
+      
+      // Sort notices by date and time (newest first)
+      const sortedNotices = response.data.sort((a, b) => {
+        return new Date(b.date) - new Date(a.date);
+      });
+      
+      setNotices(sortedNotices);
       
       // Set the first notice as selected if available
-      if (response.data.length > 0) {
-        setSelectedNotice(response.data[0]);
+      if (sortedNotices.length > 0) {
+        setSelectedNotice(sortedNotices[0]);
       }
     } catch (error) {
       console.error('Error fetching notices:', error);
@@ -50,7 +49,7 @@ const NoticeBoard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
   
   // Fetch a specific notice by ID
   const fetchNoticeById = async (noticeId) => {
@@ -89,7 +88,7 @@ const NoticeBoard = () => {
     
     try {
       return new Date(dateString).toLocaleDateString('en-US', options);
-    } catch (error) {
+    } catch {
       return dateString;
     }
   };
@@ -104,19 +103,9 @@ const NoticeBoard = () => {
             <div>
               <h1 className="text-3xl font-bold text-slate-800">Notice Board</h1>
               <p className="text-slate-600 mt-2">
-                Stay updated with the latest announcements and notifications
+                Stay updated with the latest announcements and notifications for all students
               </p>
             </div>
-            
-            {isLoggedIn && userBatch && (
-              <div className="mt-4 md:mt-0 bg-white p-3 rounded-lg shadow-sm">
-                <p className="text-sm text-slate-500">
-                  Showing notices for <span className="font-semibold text-slate-700">
-                    {`Batch ${userBatch}`}
-                  </span>
-                </p>
-              </div>
-            )}
           </div>
           
           {/* Loading, Error and Empty states */}
@@ -138,7 +127,7 @@ const NoticeBoard = () => {
                   <span className="block mt-2">
                     <Link to="/login" className="text-orange-500 hover:underline">
                       Log in
-                    </Link> to see batch-specific notices.
+                    </Link> to access your student dashboard.
                   </span>
                 )}
               </p>
