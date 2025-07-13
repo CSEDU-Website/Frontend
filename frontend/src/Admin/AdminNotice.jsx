@@ -70,8 +70,14 @@ function AdminNotice() {
     try {
       setLoading(true)
       const response = await axios.get(`${BACKEND_URL}/admin/notices/all`)
-      setNotices(response.data)
-      setFilteredNotices(response.data)
+      
+      // Sort notices by date and time (newest first)
+      const sortedNotices = response.data.sort((a, b) => {
+        return new Date(b.date) - new Date(a.date);
+      });
+      
+      setNotices(sortedNotices)
+      setFilteredNotices(sortedNotices)
       setError('')
     } catch (err) {
       setError('Failed to fetch notices')

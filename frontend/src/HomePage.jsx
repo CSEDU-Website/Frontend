@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Calendar, Users, BookOpen, Award, TrendingUp, Star, ExternalLink, Mail } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
+import Chatbot from './components/Chatbot';
 
 function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -646,6 +647,9 @@ function HomePage() {
           </div>
         </div>
       </footer>
+
+      {/* Chatbot Component */}
+      <Chatbot />
     </div>
   );
 }

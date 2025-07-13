@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Users, Calendar, BookOpen, Settings, BarChart3, Plus, Clock, UserCheck, FileText, Package, GraduationCap, CalendarDays, Bell, DollarSign } from 'lucide-react'
+import { Users, Calendar, BookOpen, BarChart3, Plus, Clock, UserCheck, FileText, Package, GraduationCap, CalendarDays, Bell, DollarSign, Home } from 'lucide-react'
 import axios from 'axios'
+import { Link } from 'react-router-dom'
 import AdminMeeting from './AdminMeeting'
 import AdminAdmission from './AdminAdmission'
 import AdminEquipment from './AdminEquipment'
@@ -54,13 +55,27 @@ function AdminDashboard() {
         const meetings = meetingsResponse.data
         setRecentMeetings(meetings.slice(0, 3)) // Show only first 3
         
-        // Fetch admission applications
-        const admissionsResponse = await axios.get(`${BACKEND_URL}/admin/admission/list`)
-        const applications = admissionsResponse.data
+        // Fetch admission applications with error handling
+        let applications = []
+        try {
+          const admissionsResponse = await axios.get(`${BACKEND_URL}/admin/admission/list`)
+          applications = admissionsResponse.data
+        } catch (admissionError) {
+          console.error('Failed to fetch admissions:', admissionError)
+          console.log('Admissions API Error Details:', admissionError.response?.data)
+          applications = []
+        }
         
-        // Fetch equipment data
-        const equipmentResponse = await axios.get(`${BACKEND_URL}/admin/equipment/list`)
-        const equipmentList = equipmentResponse.data
+        // Fetch equipment data with error handling
+        let equipmentList = []
+        try {
+          const equipmentResponse = await axios.get(`${BACKEND_URL}/admin/equipment/list`)
+          equipmentList = equipmentResponse.data
+        } catch (equipmentError) {
+          console.error('Failed to fetch equipment:', equipmentError)
+          console.log('Equipment API Error Details:', equipmentError.response?.data)
+          equipmentList = []
+        }
         
         // Fetch student equipment orders
         const ordersResponse = await axios.get(`${BACKEND_URL}/admin/equipment/student-equipments/list-all`)
@@ -79,9 +94,16 @@ function AdminDashboard() {
           return diffHours <= 24 && diffHours > 0
         }).length
         
-        // Fetch event data
-        const eventsResponse = await axios.get(`${BACKEND_URL}/admin/events/all`)
-        const eventsList = eventsResponse.data
+        // Fetch event data with error handling
+        let eventsList = []
+        try {
+          const eventsResponse = await axios.get(`${BACKEND_URL}/admin/events/all`)
+          eventsList = eventsResponse.data
+        } catch (eventsError) {
+          console.error('Failed to fetch events:', eventsError)
+          console.log('Events API Error Details:', eventsError.response?.data)
+          eventsList = []
+        }
         
         // Calculate upcoming and running events
         const upcomingEvents = eventsList.filter(event => {
@@ -95,16 +117,30 @@ function AdminDashboard() {
           return startDate <= now && endDate >= now
         }).length
         
-        // Fetch notice data
-        const noticesResponse = await axios.get(`${BACKEND_URL}/admin/notices/all`)
-        const noticesList = noticesResponse.data
-        
-        // Calculate urgent notices (within 24 hours)
-        const urgentNotices = noticesList.filter(notice => {
-          const noticeDate = new Date(notice.date)
-          const diffHours = (noticeDate - now) / (1000 * 60 * 60)
-          return diffHours <= 24 && diffHours > 0
-        }).length
+        // Fetch notice data with error handling
+        let noticesList = []
+        let urgentNotices = 0
+        try {
+          const noticesResponse = await axios.get(`${BACKEND_URL}/admin/notices/all`)
+          // Sort notices by date and time (newest first)
+          noticesList = noticesResponse.data.sort((a, b) => {
+            return new Date(b.date) - new Date(a.date);
+          });
+          
+          // Calculate urgent notices (published within last 24 hours)
+          const twentyFourHoursAgo = new Date();
+          twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+          
+          urgentNotices = noticesList.filter(notice => {
+            const noticeDate = new Date(notice.date);
+            return noticeDate >= twentyFourHoursAgo;
+          }).length;
+        } catch (noticesError) {
+          console.error('Failed to fetch notices:', noticesError)
+          console.log('Notices API Error Details:', noticesError.response?.data)
+          noticesList = []
+          urgentNotices = 0
+        }
         
         // Fetch finance data
         const financeEventsResponse = await axios.get(`${BACKEND_URL}/v1/finance/events`)
@@ -185,10 +221,7 @@ function AdminDashboard() {
     { id: 'exams', label: 'Exams', icon: GraduationCap },
     { id: 'events', label: 'Events', icon: CalendarDays },
     { id: 'notices', label: 'Notices', icon: Bell },
-    { id: 'finance', label: 'Finance', icon: DollarSign },
-    { id: 'users', label: 'User Management', icon: Users },
-    { id: 'courses', label: 'Course Management', icon: BookOpen },
-    { id: 'settings', label: 'Settings', icon: Settings }
+    { id: 'finance', label: 'Finance', icon: DollarSign }
   ]
 
   const statsCards = [
@@ -341,6 +374,13 @@ function AdminDashboard() {
                   day: 'numeric' 
                 })}
               </div>
+              <Link 
+                to="/" 
+                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"
+              >
+                <Home size={16} />
+                <span className="text-sm font-medium">Return to Home</span>
+              </Link>
               <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
                 <Users size={18} className="text-gray-600" />
               </div>
@@ -463,16 +503,6 @@ function AdminDashboard() {
                     </button>
                     
                     <button
-                      onClick={() => setActiveTab('users')}
-                      className="flex flex-col items-center gap-2 p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
-                    >
-                      <div className="bg-green-500 p-2 rounded-lg">
-                        <Users size={20} className="text-white" />
-                      </div>
-                      <span className="text-sm font-medium text-green-700">Manage Users</span>
-                    </button>
-                    
-                    <button
                       onClick={() => setActiveTab('admissions')}
                       className="flex flex-col items-center gap-2 p-4 bg-indigo-50 rounded-lg hover:bg-indigo-100 transition-colors"
                     >
@@ -531,26 +561,6 @@ function AdminDashboard() {
                       </div>
                       <span className="text-sm font-medium text-green-700">Manage Finance</span>
                     </button>
-                    
-                    <button
-                      onClick={() => setActiveTab('courses')}
-                      className="flex flex-col items-center gap-2 p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
-                    >
-                      <div className="bg-purple-500 p-2 rounded-lg">
-                        <BookOpen size={20} className="text-white" />
-                      </div>
-                      <span className="text-sm font-medium text-purple-700">Manage Courses</span>
-                    </button>
-                    
-                    <button
-                      onClick={() => setActiveTab('settings')}
-                      className="flex flex-col items-center gap-2 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                    >
-                      <div className="bg-gray-500 p-2 rounded-lg">
-                        <Settings size={20} className="text-white" />
-                      </div>
-                      <span className="text-sm font-medium text-gray-700">Settings</span>
-                    </button>
                   </div>
                 </div>
               </div>
@@ -570,27 +580,6 @@ function AdminDashboard() {
           {activeTab === 'notices' && <AdminNotice />}
 
           {activeTab === 'finance' && <AdminFinance />}
-
-          {activeTab === 'users' && (
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">User Management</h2>
-              <p className="text-gray-600">User management functionality will be implemented here.</p>
-            </div>
-          )}
-
-          {activeTab === 'courses' && (
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Course Management</h2>
-              <p className="text-gray-600">Course management functionality will be implemented here.</p>
-            </div>
-          )}
-
-          {activeTab === 'settings' && (
-            <div className="bg-white rounded-lg border border-gray-200 p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Settings</h2>
-              <p className="text-gray-600">System settings will be implemented here.</p>
-            </div>
-          )}
         </main>
       </div>
     </div>

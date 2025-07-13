@@ -20,6 +20,7 @@ import PeopleDirectory from './pages/PeopleDirectory'
 import AboutChairman from './pages/AboutChairman'
 import DepartmentalMeetings from './pages/DepartmentalMeetings'
 import ResourceHub from './Student/ResourceHub'
+import StudentNotice from './Student/StudentNotice'
 import Dashboard from './Student/DashBoard'
 import EnrollCourse from './Student/EnrollCourse'
 import MyCourses from './Student/MyCourses'
@@ -79,6 +80,7 @@ function App() {
         <Route path="/my-courses" element={<MyCourses />} />
         <Route path="/archived-courses" element={<ArchivedCourses />} />
         <Route path="/resource-hub" element={<ResourceHub />} />
+        <Route path="/student-notice" element={<StudentNotice />} />
         <Route path='/settingspage' element={<SettingsPage />} />
         <Route path="/finance" element={<Finance />} />
         {/* Fallback */}

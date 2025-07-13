@@ -1,494 +1,561 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { 
-  Search, 
-  Filter, 
+  Package, 
   Calendar, 
   Clock, 
-  User, 
-  Monitor, 
-  Cpu, 
-  Smartphone,
-  Wifi,
-  ExternalLink,
-  CheckCircle,
+  Plus, 
+  History, 
+  CheckCircle, 
+  XCircle, 
+  Search,
+  Filter,
   AlertCircle,
-  XCircle,
-  Eye,
-  Download,
-  Mail,
+  User,
+  Hash,
   ArrowLeft
 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+console.log('BACKEND_URL:', BACKEND_URL);
 
 const ResourceHub = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('equipment');
+  const [activeTab, setActiveTab] = useState('browse');
+  const [equipments, setEquipments] = useState([]);
+  const [myOrders, setMyOrders] = useState([]);
+  const [orderHistory, setOrderHistory] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [filterCategory, setFilterCategory] = useState('all');
+  
+  // Order form state
   const [selectedEquipment, setSelectedEquipment] = useState(null);
-  const [projectFilters, setProjectFilters] = useState({
-    year: 'all',
-    topic: 'all',
-    supervisor: 'all'
-  });
+  const [orderQuantity, setOrderQuantity] = useState(1);
+  const [endDate, setEndDate] = useState('');
+  const [showOrderModal, setShowOrderModal] = useState(false);
 
-  // Mock data for lab equipment
-  const labEquipment = [
-    {
-      id: 1,
-      name: "NVIDIA RTX 4090 GPU",
-      category: "GPU",
-      description: "High-performance GPU for machine learning and AI research",
-      availability: "available",
-      nextAvailable: null,
-      specifications: ["24GB VRAM", "16384 CUDA Cores", "PCIe 4.0"],
-      image: "/placeholder-gpu.jpg"
-    },
-    {
-      id: 2,
-      name: "Raspberry Pi 4 Model B",
-      category: "Microcontroller",
-      description: "Single-board computer for IoT and embedded systems projects",
-      availability: "busy",
-      nextAvailable: "2024-02-20",
-      specifications: ["8GB RAM", "Quad-core ARM", "WiFi & Bluetooth"],
-      image: "/placeholder-pi.jpg"
-    },
-    {
-      id: 3,
-      name: "Arduino Sensor Kit",
-      category: "Sensors",
-      description: "Complete sensor collection for environmental monitoring",
-      availability: "limited",
-      nextAvailable: null,
-      specifications: ["Temperature Sensor", "Humidity Sensor", "Motion Detector"],
-      image: "/placeholder-sensors.jpg"
-    },
-    {
-      id: 4,
-      name: "FPGA Development Board",
-      category: "FPGA",
-      description: "Field-programmable gate array for digital circuit design",
-      availability: "available",
-      nextAvailable: null,
-      specifications: ["Xilinx Zynq", "DDR4 Memory", "High-speed I/O"],
-      image: "/placeholder-fpga.jpg"
+  // Get current user - with better error handling
+  let user = {};
+  let studentId = 1; // Default fallback
+  
+  try {
+    const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
+    if (userStr) {
+      user = JSON.parse(userStr);
+      studentId = user.studentProfile?.id || user.id || 1;
     }
-  ];
+  } catch (error) {
+    console.error('Error parsing user data:', error);
+  }
 
-  // Mock data for projects
-  const projects = [
-    {
-      id: 1,
-      title: "AI-Powered Medical Diagnosis System",
-      year: "2023",
-      topic: "AI & Machine Learning",
-      supervisor: "Dr. Sarah Johnson",
-      team: ["Alice Smith", "Bob Chen", "Carol Williams"],
-      abstract: "Developed a deep learning model for automated medical image analysis and diagnosis using convolutional neural networks.",
-      demoLink: "https://youtube.com/watch?v=demo1",
-      status: "completed",
-      image: "/placeholder-project1.jpg"
-    },
-    {
-      id: 2,
-      title: "Smart City Traffic Management",
-      year: "2023",
-      topic: "IoT & Smart Systems",
-      supervisor: "Dr. Michael Chen",
-      team: ["David Lee", "Emma Brown"],
-      abstract: "IoT-based traffic monitoring and optimization system using real-time data analysis and machine learning algorithms.",
-      demoLink: "https://figma.com/proto/demo2",
-      status: "ongoing",
-      image: "/placeholder-project2.jpg"
-    },
-    {
-      id: 3,
-      title: "Blockchain-Based Voting System",
-      year: "2022",
-      topic: "Blockchain & Security",
-      supervisor: "Dr. Lisa Anderson",
-      team: ["Frank Wilson", "Grace Kim", "Henry Taylor"],
-      abstract: "Secure and transparent voting system using blockchain technology with smart contracts for election integrity.",
-      demoLink: "https://youtube.com/watch?v=demo3",
-      status: "completed",
-      image: "/placeholder-project3.jpg"
-    }
-  ];
-
-  const EquipmentCard = ({ equipment }) => {
-    const getAvailabilityColor = (status) => {
-      switch (status) {
-        case 'available': return 'bg-green-100 text-green-800';
-        case 'limited': return 'bg-yellow-100 text-yellow-800';
-        case 'busy': return 'bg-red-100 text-red-800';
-        default: return 'bg-gray-100 text-gray-800';
+  useEffect(() => {
+    const fetchMyOrdersInternal = async () => {
+      if (!studentId) {
+        setError('Student ID not found. Please log in again.');
+        return;
+      }
+      
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await axios.get(`${BACKEND_URL}/student/equipment/equipment/my-orders`, {
+          params: { student_id: studentId }
+        });
+        setMyOrders(response.data);
+      } catch (error) {
+        console.error('Error fetching my orders:', error);
+        setError('Failed to load your orders. Please try again.');
+      } finally {
+        setLoading(false);
       }
     };
 
-    const getAvailabilityIcon = (status) => {
-      switch (status) {
-        case 'available': return <CheckCircle size={16} />;
-        case 'limited': return <AlertCircle size={16} />;
-        case 'busy': return <XCircle size={16} />;
-        default: return <AlertCircle size={16} />;
+    const fetchOrderHistoryInternal = async () => {
+      if (!studentId) {
+        setError('Student ID not found. Please log in again.');
+        return;
+      }
+      
+      setLoading(true);
+      setError(null);
+      try {
+        const response = await axios.get(`${BACKEND_URL}/student/equipment/equipment/my-order-history`, {
+          params: { student_id: studentId }
+        });
+        setOrderHistory(response.data);
+      } catch (error) {
+        console.error('Error fetching order history:', error);
+        setError('Failed to load order history. Please try again.');
+      } finally {
+        setLoading(false);
       }
     };
 
-    return (
-      <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
-        <img 
-          src={equipment.image} 
-          alt={equipment.name}
-          className="w-full h-48 object-cover rounded-lg mb-4"
-        />
-        
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-xl font-bold text-slate-800">{equipment.name}</h3>
-          <span className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1 ${getAvailabilityColor(equipment.availability)}`}>
-            {getAvailabilityIcon(equipment.availability)}
-            {equipment.availability}
-          </span>
-        </div>
-        
-        <p className="text-slate-600 mb-4">{equipment.description}</p>
-        
-        <div className="mb-4">
-          <h4 className="font-semibold text-slate-700 mb-2">Specifications:</h4>
-          <ul className="space-y-1">
-            {equipment.specifications.map((spec, index) => (
-              <li key={index} className="text-sm text-slate-600 flex items-center gap-2">
-                <span className="w-2 h-2 bg-slate-400 rounded-full"></span>
-                {spec}
-              </li>
-            ))}
-          </ul>
-        </div>
-        
-        {equipment.nextAvailable && (
-          <p className="text-sm text-slate-500 mb-4">
-            Next available: {new Date(equipment.nextAvailable).toLocaleDateString()}
-          </p>
-        )}
-        
-        <button 
-          onClick={() => setSelectedEquipment(equipment)}
-          className="w-full bg-slate-600 hover:bg-slate-700 text-white py-2 px-4 rounded-lg font-medium transition-colors"
-          disabled={equipment.availability === 'busy'}
-        >
-          {equipment.availability === 'busy' ? 'Currently Unavailable' : 'Book Equipment'}
-        </button>
-      </div>
-    );
+    if (activeTab === 'browse') {
+      fetchEquipments();
+    } else if (activeTab === 'orders') {
+      fetchMyOrdersInternal();
+    } else if (activeTab === 'history') {
+      fetchOrderHistoryInternal();
+    }
+  }, [activeTab, studentId]);
+
+  const fetchEquipments = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      console.log('Fetching equipments from:', `${BACKEND_URL}/student/equipment/equipments`);
+      const response = await axios.get(`${BACKEND_URL}/student/equipment/equipments`);
+      console.log('Equipments response:', response.data);
+      setEquipments(response.data);
+    } catch (error) {
+      console.error('Error fetching equipments:', error);
+      setError('Failed to load equipments. Please try again.');
+      // Set some mock data for testing
+      setEquipments([
+        {
+          id: 1,
+          name: 'Test Equipment',
+          description: 'This is test equipment',
+          category: 'Electronics',
+          quantity_available: 5
+        }
+      ]);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const ProjectCard = ({ project }) => (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
-      <img 
-        src={project.image} 
-        alt={project.title}
-        className="w-full h-48 object-cover"
-      />
+  const handlePlaceOrder = async () => {
+    if (!studentId) {
+      setError('Student ID not found. Please log in again.');
+      return;
+    }
+
+    if (!endDate) {
+      setError('Please select an end date for the equipment rental.');
+      return;
+    }
+
+    if (orderQuantity < 1 || orderQuantity > selectedEquipment.quantity_available) {
+      setError(`Please enter a quantity between 1 and ${selectedEquipment.quantity_available}.`);
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    try {
+      const orderData = {
+        student_id: studentId,
+        equipment_id: selectedEquipment.id,
+        quantity: orderQuantity,
+        end_date: endDate
+      };
+
+      await axios.post(`${BACKEND_URL}/student/equipment/equipment/place-order`, orderData);
       
+      // Reset form and close modal
+      setShowOrderModal(false);
+      setSelectedEquipment(null);
+      setOrderQuantity(1);
+      setEndDate('');
+      
+      // Refresh equipments list
+      fetchEquipments();
+      
+      // Show success message
+      alert('Order placed successfully!');
+    } catch (error) {
+      console.error('Error placing order:', error);
+      setError(error.response?.data?.detail || 'Failed to place order. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const openOrderModal = (equipment) => {
+    setSelectedEquipment(equipment);
+    setOrderQuantity(1);
+    setEndDate('');
+    setShowOrderModal(true);
+    setError(null);
+  };
+
+  const closeOrderModal = () => {
+    setShowOrderModal(false);
+    setSelectedEquipment(null);
+    setOrderQuantity(1);
+    setEndDate('');
+    setError(null);
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  // Filter equipments based on search and category
+  const filteredEquipments = equipments.filter(equipment => {
+    const matchesSearch = equipment.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         equipment.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = filterCategory === 'all' || equipment.category === filterCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  // Get unique categories for filter
+  const categories = [...new Set(equipments.map(eq => eq.category).filter(Boolean))];
+
+  // If no backend URL, show error message
+  if (!BACKEND_URL) {
+    return (
       <div className="p-6">
-        <div className="flex items-center justify-between mb-3">
-          <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-sm font-medium">
-            {project.topic}
-          </span>
-          <span className="text-sm text-slate-500">{project.year}</span>
-        </div>
-        
-        <h3 className="text-xl font-bold text-slate-800 mb-2">{project.title}</h3>
-        <p className="text-slate-600 mb-3">Supervisor: {project.supervisor}</p>
-        <p className="text-slate-600 text-sm mb-4 line-clamp-3">{project.abstract}</p>
-        
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-slate-500">
-            Team: {project.team.length} members
-          </span>
-          <div className="flex gap-2">
-            <button className="flex items-center gap-1 text-slate-600 hover:text-slate-800 transition-colors">
-              <Eye size={14} />
-              <span className="text-sm">View Details</span>
-            </button>
-            <a 
-              href={project.demoLink} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-slate-600 hover:text-slate-800 transition-colors"
-            >
-              <ExternalLink size={14} />
-              <span className="text-sm">Demo</span>
-            </a>
-          </div>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <h2 className="text-lg font-semibold text-red-800 mb-2">Configuration Error</h2>
+          <p className="text-red-700">Backend URL is not configured. Please check your environment variables.</p>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
 
-  const BookingModal = ({ equipment, onClose }) => {
-    const [selectedDate, setSelectedDate] = useState('');
-    const [selectedTime, setSelectedTime] = useState('');
-    const [duration, setDuration] = useState('');
-    const [justification, setJustification] = useState('');
+  return (
+    <div className="bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Resource Hub</h1>
+              <p className="text-gray-600">Browse and manage equipment rentals</p>
+            </div>
+            <button
+              onClick={() => navigate('/student-dashboard')}
+              className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Return to Student Dashboard
+            </button>
+          </div>
+        </div>
 
-    const timeSlots = [
-      '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00'
-    ];
-
-    const handleSubmit = (e) => {
-      e.preventDefault();
-      // Handle booking submission
-      alert('Booking request submitted for admin approval!');
-      onClose();
-    };
-
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-          <div className="p-6">
-            <div className="flex justify-between items-start mb-6">
-              <h2 className="text-2xl font-bold text-slate-800">Book Equipment</h2>
-              <button 
-                onClick={onClose}
-                className="text-slate-400 hover:text-slate-600"
+        {/* Navigation Tabs */}
+        <div className="mb-6">
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setActiveTab('browse')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'browse'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
               >
-                <XCircle size={24} />
+                <Package className="inline-block w-4 h-4 mr-2" />
+                Browse Equipment
               </button>
+              <button
+                onClick={() => setActiveTab('orders')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'orders'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <Clock className="inline-block w-4 h-4 mr-2" />
+                My Orders
+              </button>
+              <button
+                onClick={() => setActiveTab('history')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'history'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <History className="inline-block w-4 h-4 mr-2" />
+                Order History
+              </button>
+            </nav>
+          </div>
+        </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 bg-red-50 border border-red-200 rounded-lg p-4 flex items-center">
+            <AlertCircle className="w-5 h-5 text-red-500 mr-2" />
+            <span className="text-red-700">{error}</span>
+          </div>
+        )}
+
+        {/* Browse Equipment Tab */}
+        {activeTab === 'browse' && (
+          <div>
+            {/* Search and Filter */}
+            <div className="mb-6 flex flex-col sm:flex-row gap-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <input
+                  type="text"
+                  placeholder="Search equipment..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+              <div className="relative">
+                <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                <select
+                  value={filterCategory}
+                  onChange={(e) => setFilterCategory(e.target.value)}
+                  className="pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="all">All Categories</option>
+                  {categories.map(category => (
+                    <option key={category} value={category}>{category}</option>
+                  ))}
+                </select>
+              </div>
             </div>
 
-            <div className="mb-6">
-              <h3 className="text-lg font-semibold text-slate-800 mb-2">{equipment.name}</h3>
-              <p className="text-slate-600">{equipment.description}</p>
-            </div>
+            {/* Equipment Grid */}
+            {loading ? (
+              <div className="flex justify-center items-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredEquipments.map(equipment => (
+                  <div key={equipment.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div className="p-6">
+                      <div className="flex items-start justify-between mb-4">
+                        <h3 className="text-lg font-semibold text-gray-900">{equipment.name}</h3>
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                          equipment.quantity_available > 0 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {equipment.quantity_available > 0 ? 'Available' : 'Out of Stock'}
+                        </span>
+                      </div>
+                      
+                      {equipment.description && (
+                        <p className="text-gray-600 text-sm mb-4">{equipment.description}</p>
+                      )}
+                      
+                      <div className="space-y-2 mb-4">
+                        {equipment.category && (
+                          <div className="flex items-center text-sm text-gray-500">
+                            <Package className="w-4 h-4 mr-2" />
+                            Category: {equipment.category}
+                          </div>
+                        )}
+                        <div className="flex items-center text-sm text-gray-500">
+                          <Hash className="w-4 h-4 mr-2" />
+                          Available: {equipment.quantity_available} units
+                        </div>
+                      </div>
+                      
+                      <button
+                        onClick={() => openOrderModal(equipment)}
+                        disabled={equipment.quantity_available === 0}
+                        className={`w-full flex items-center justify-center px-4 py-2 rounded-lg font-medium ${
+                          equipment.quantity_available > 0
+                            ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                            : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        }`}
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        {equipment.quantity_available > 0 ? 'Place Order' : 'Out of Stock'}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-4">
+        {/* My Orders Tab */}
+        {activeTab === 'orders' && (
+          <div>
+            {loading ? (
+              <div className="flex justify-center items-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+              </div>
+            ) : myOrders.length === 0 ? (
+              <div className="text-center py-12">
+                <Clock className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No Active Orders</h3>
+                <p className="text-gray-500">You don't have any active equipment orders.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {myOrders.map(order => (
+                  <div key={order.id} className="bg-white rounded-lg shadow-md p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                          Order #{order.id}
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+                          <div className="flex items-center">
+                            <Package className="w-4 h-4 mr-2" />
+                            Equipment ID: {order.equipment_id}
+                          </div>
+                          <div className="flex items-center">
+                            <Hash className="w-4 h-4 mr-2" />
+                            Quantity: {order.quantity}
+                          </div>
+                          <div className="flex items-center">
+                            <Calendar className="w-4 h-4 mr-2" />
+                            Started: {formatDate(order.start_date)}
+                          </div>
+                          <div className="flex items-center">
+                            <Calendar className="w-4 h-4 mr-2" />
+                            Due: {formatDate(order.end_date)}
+                          </div>
+                          <div className="flex items-center">
+                            <User className="w-4 h-4 mr-2" />
+                            Student ID: {order.student_id}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="ml-4">
+                        <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
+                          Active
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Order History Tab */}
+        {activeTab === 'history' && (
+          <div>
+            {loading ? (
+              <div className="flex justify-center items-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+              </div>
+            ) : orderHistory.length === 0 ? (
+              <div className="text-center py-12">
+                <History className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No Order History</h3>
+                <p className="text-gray-500">You haven't returned any equipment yet.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {orderHistory.map(order => (
+                  <div key={order.id} className="bg-white rounded-lg shadow-md p-6">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                          Order #{order.id}
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+                          <div className="flex items-center">
+                            <Package className="w-4 h-4 mr-2" />
+                            Equipment ID: {order.equipment_id}
+                          </div>
+                          <div className="flex items-center">
+                            <Hash className="w-4 h-4 mr-2" />
+                            Quantity: {order.quantity}
+                          </div>
+                          <div className="flex items-center">
+                            <Calendar className="w-4 h-4 mr-2" />
+                            Started: {formatDate(order.start_date)}
+                          </div>
+                          <div className="flex items-center">
+                            <Calendar className="w-4 h-4 mr-2" />
+                            Ended: {formatDate(order.end_date)}
+                          </div>
+                          <div className="flex items-center">
+                            <User className="w-4 h-4 mr-2" />
+                            Student ID: {order.student_id}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="ml-4">
+                        <span className="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full flex items-center">
+                          <CheckCircle className="w-3 h-3 mr-1" />
+                          Returned
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Order Modal */}
+        {showOrderModal && selectedEquipment && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Place Equipment Order</h2>
+              
+              <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Select Date
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Equipment</label>
+                  <p className="text-gray-900 font-medium">{selectedEquipment.name}</p>
+                  <p className="text-sm text-gray-500">{selectedEquipment.description}</p>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Quantity (Max: {selectedEquipment.quantity_available})
                   </label>
                   <input
-                    type="date"
-                    value={selectedDate}
-                    onChange={(e) => setSelectedDate(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
-                    required
+                    type="number"
+                    min="1"
+                    max={selectedEquipment.quantity_available}
+                    value={orderQuantity}
+                    onChange={(e) => setOrderQuantity(parseInt(e.target.value))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-2">
-                    Time Slot
-                  </label>
-                  <select
-                    value={selectedTime}
-                    onChange={(e) => setSelectedTime(e.target.value)}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
-                    required
-                  >
-                    <option value="">Select time</option>
-                    {timeSlots.map(time => (
-                      <option key={time} value={time}>{time}</option>
-                    ))}
-                  </select>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Return Date</label>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    min={new Date().toISOString().split('T')[0]}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
                 </div>
               </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Duration (hours)
-                </label>
-                <select
-                  value={duration}
-                  onChange={(e) => setDuration(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
-                  required
-                >
-                  <option value="">Select duration</option>
-                  <option value="1">1 hour</option>
-                  <option value="2">2 hours</option>
-                  <option value="3">3 hours</option>
-                  <option value="4">4 hours</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Justification for Use
-                </label>
-                <textarea
-                  value={justification}
-                  onChange={(e) => setJustification(e.target.value)}
-                  placeholder="Please explain why you need this equipment and how it will be used..."
-                  className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500 h-32"
-                  required
-                />
-              </div>
-
-              <div className="flex gap-4">
+              
+              <div className="flex justify-end space-x-3 mt-6">
                 <button
-                  type="button"
-                  onClick={onClose}
-                  className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
+                  onClick={closeOrderModal}
+                  className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
-                  type="submit"
-                  className="flex-1 px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors"
+                  onClick={handlePlaceOrder}
+                  disabled={loading}
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
                 >
-                  Submit Request
+                  {loading ? 'Placing Order...' : 'Place Order'}
                 </button>
               </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const filteredProjects = projects.filter(project => {
-    return (
-      (projectFilters.year === 'all' || project.year === projectFilters.year) &&
-      (projectFilters.topic === 'all' || project.topic === projectFilters.topic) &&
-      (projectFilters.supervisor === 'all' || project.supervisor === projectFilters.supervisor)
-    );
-  });
-
-  return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <div className="bg-white shadow-sm border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-4 mb-2">
-            <Link 
-              to="/student-dashboard" 
-              className="flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors"
-            >
-              <ArrowLeft size={20} />
-              <span className="text-sm font-medium">Back to Dashboard</span>
-            </Link>
-          </div>
-          <h1 className="text-2xl font-bold text-slate-800">Resource Hub</h1>
-          <p className="text-slate-600">Book lab equipment and explore student projects</p>
-        </div>
-      </div>
-
-      {/* Tabs */}
-      <div className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex space-x-8">
-            <button
-              onClick={() => setActiveTab('equipment')}
-              className={`py-4 px-2 border-b-2 font-medium text-sm ${
-                activeTab === 'equipment'
-                  ? 'border-slate-600 text-slate-600'
-                  : 'border-transparent text-slate-500 hover:text-slate-700'
-              }`}
-            >
-              Lab Equipment
-            </button>
-            <button
-              onClick={() => setActiveTab('projects')}
-              className={`py-4 px-2 border-b-2 font-medium text-sm ${
-                activeTab === 'projects'
-                  ? 'border-slate-600 text-slate-600'
-                  : 'border-transparent text-slate-500 hover:text-slate-700'
-              }`}
-            >
-              Projects Gallery
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {activeTab === 'equipment' ? (
-          <div>
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-xl font-semibold text-slate-800">Available Equipment</h2>
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 text-slate-400" size={16} />
-                  <input
-                    type="text"
-                    placeholder="Search equipment..."
-                    className="pl-10 pr-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
-                  />
-                </div>
-                <select className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500">
-                  <option value="all">All Categories</option>
-                  <option value="gpu">GPU</option>
-                  <option value="microcontroller">Microcontroller</option>
-                  <option value="sensors">Sensors</option>
-                  <option value="fpga">FPGA</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {labEquipment.map(equipment => (
-                <EquipmentCard key={equipment.id} equipment={equipment} />
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div>
-            <div className="flex flex-col md:flex-row gap-4 mb-8">
-              <div className="flex-1">
-                <h2 className="text-xl font-semibold text-slate-800 mb-4">Student Projects</h2>
-              </div>
-              <div className="flex flex-wrap gap-4">
-                <select
-                  value={projectFilters.year}
-                  onChange={(e) => setProjectFilters({...projectFilters, year: e.target.value})}
-                  className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
-                >
-                  <option value="all">All Years</option>
-                  <option value="2023">2023</option>
-                  <option value="2022">2022</option>
-                  <option value="2021">2021</option>
-                </select>
-                
-                <select
-                  value={projectFilters.topic}
-                  onChange={(e) => setProjectFilters({...projectFilters, topic: e.target.value})}
-                  className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
-                >
-                  <option value="all">All Topics</option>
-                  <option value="AI & Machine Learning">AI & Machine Learning</option>
-                  <option value="IoT & Smart Systems">IoT & Smart Systems</option>
-                  <option value="Blockchain & Security">Blockchain & Security</option>
-                </select>
-                
-                <select
-                  value={projectFilters.supervisor}
-                  onChange={(e) => setProjectFilters({...projectFilters, supervisor: e.target.value})}
-                  className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
-                >
-                  <option value="all">All Supervisors</option>
-                  <option value="Dr. Sarah Johnson">Dr. Sarah Johnson</option>
-                  <option value="Dr. Michael Chen">Dr. Michael Chen</option>
-                  <option value="Dr. Lisa Anderson">Dr. Lisa Anderson</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProjects.map(project => (
-                <ProjectCard key={project.id} project={project} />
-              ))}
             </div>
           </div>
         )}
       </div>
-
-      {/* Booking Modal */}
-      {selectedEquipment && (
-        <BookingModal 
-          equipment={selectedEquipment} 
-          onClose={() => setSelectedEquipment(null)} 
-        />
-      )}
     </div>
   );
 };
