@@ -21,6 +21,8 @@ export default function SubmissionList() {
           `${BACKEND_URL}/v1/teacher/courses/assignments/get/${assignmentId}`
         );
 
+        console.log(assignmentRes.data)
+
         if (assignmentRes.data) {
           setAssignment(assignmentRes.data);
           setCourseId(assignmentRes.data.course_id);
@@ -30,6 +32,7 @@ export default function SubmissionList() {
         const submissionsRes = await axios.get(
           `${BACKEND_URL}/v1/teacher/courses/submissions/by-assignment/${assignmentId}`
         );
+        console.log(submissionsRes.data)
         setSubmissions(submissionsRes.data);
       } catch (err) {
         console.error("Failed to fetch data:", err);
