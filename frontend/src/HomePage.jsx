@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Calendar, Users, BookOpen, Award, TrendingUp, Star, ExternalLink, Mail } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, Users, BookOpen, Award, TrendingUp, Star, ExternalLink, Mail, Phone } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
 import Chatbot from './components/Chatbot';
@@ -315,7 +315,7 @@ function HomePage() {
               Shaping the future of technology through innovation and discovery.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/about" className="bg-white text-slate-800 px-8 py-3 rounded-lg font-medium hover:bg-slate-100 transition-colors">
+              <Link to="/chairman" className="bg-white text-slate-800 px-8 py-3 rounded-lg font-medium hover:bg-slate-100 transition-colors">
                 Learn More About Us
               </Link>
               <Link to="/apply" className="border-2 border-white text-white px-8 py-3 rounded-lg font-medium hover:bg-white hover:text-slate-800 transition-colors">
@@ -548,10 +548,10 @@ function HomePage() {
               <h2 className="text-2xl font-bold text-slate-800">Quick Links</h2>
             </div>
             <ul className="space-y-3">
-              <li><Link to="/admissions" className="text-slate-600 hover:text-slate-800 transition-colors">Admissions</Link></li>
-              <li><Link to="/courses" className="text-slate-600 hover:text-slate-800 transition-colors">Course Catalog</Link></li>
-              <li><Link to="/research" className="text-slate-600 hover:text-slate-800 transition-colors">Research Centers</Link></li>
-              <li><Link to="/alumni" className="text-slate-600 hover:text-slate-800 transition-colors">Alumni Network</Link></li>
+              <li><Link to="/apply" className="text-slate-600 hover:text-slate-800 transition-colors">Apply for Admission</Link></li>
+              <li><Link to="/admission-hub" className="text-slate-600 hover:text-slate-800 transition-colors">Course Catalog</Link></li>
+              <li><Link to="/people" className="text-slate-600 hover:text-slate-800 transition-colors">Faculty</Link></li>
+              <li><Link to="https://cseduaa.org/" className="text-slate-600 hover:text-slate-800 transition-colors">Alumni Network</Link></li>
             </ul>
           </div>
           
@@ -561,19 +561,28 @@ function HomePage() {
               <h2 className="text-2xl font-bold text-slate-800">Academic Programs</h2>
             </div>
             <ul className="space-y-4">
-              <li>
-                <h3 className="font-bold">Bachelor of Science (BS)</h3>
+            <li>
+              <Link to="/program/1" className="block hover:bg-slate-100 p-3 rounded-md transition">
+                <h3 className="font-bold text-slate-800">Bachelor of Science (BS)</h3>
                 <p className="text-gray-600">4-year undergraduate program in Computer Science.</p>
-              </li>
-              <li>
-                <h3 className="font-bold">Master of Science (MS)</h3>
+              </Link>
+            </li>
+
+            <li>
+              <Link to="/program/2" className="block hover:bg-slate-100 p-3 rounded-md transition">
+                <h3 className="font-bold text-slate-800">Master of Science (MS)</h3>
                 <p className="text-gray-600">Advanced studies in specialized Computer Science fields.</p>
-              </li>
-              <li>
-                <h3 className="font-bold">Doctor of Philosophy (PhD)</h3>
+              </Link>
+            </li>
+
+            <li>
+              <Link to="/program/3" className="block hover:bg-slate-100 p-3 rounded-md transition">
+                <h3 className="font-bold text-slate-800">Doctor of Philosophy (PhD)</h3>
                 <p className="text-gray-600">Research-focused doctoral program.</p>
-              </li>
-            </ul>
+              </Link>
+            </li>
+          </ul>
+
           </div>
           
           <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
@@ -599,41 +608,45 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-slate-800 text-white py-8">
+      {/* Beautified Footer */}
+      <footer className="bg-gradient-to-b from-slate-800 to-slate-900 text-white py-12">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
-              <p>Department of Computer Science & Engineering</p>
-              <p>Faculty of Science</p>
-              <p>University of Dhaka</p>
-              <p>Dhaka 1000, Bangladesh</p>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            {/* Contact Info */}
+            <div className="bg-slate-700/30 p-6 rounded-lg">
+              <h3 className="text-lg font-semibold mb-4 pb-2 border-b border-slate-600">Contact Us</h3>
+              <p className="mb-1">Department of Computer Science & Engineering</p>
+              <p className="mb-1">Faculty of Science</p>
+              <p className="mb-1">University of Dhaka</p>
+              <p className="mb-3">Dhaka 1000, Bangladesh</p>
+              <div className="mt-4 pt-3 border-t border-slate-600 space-y-2">
+                <p className="text-sm text-slate-300 flex items-center gap-2">
+                  <Phone size={14} className="text-slate-400" />
+                  +880-2-9661900
+                </p>
+                <p className="text-sm text-slate-300 flex items-center gap-2">
+                  <Mail size={14} className="text-slate-400" />
+                  cse@du.ac.bd
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
-              <ul className="space-y-2">
-                <li><Link to="/calendar" className="hover:text-slate-300">Academic Calendar</Link></li>
-                <li><Link to="/people" className="hover:text-slate-300">Faculty & Staff</Link></li>
-                <li><Link to="/meetings" className="hover:text-slate-300">Departmental Meetings</Link></li>
-                <li><Link to="/alumni" className="hover:text-slate-300">Alumni Network</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Connect With Us</h3>
-              <div className="flex space-x-4">
-                <a href="https://facebook.com" className="hover:text-slate-300" aria-label="Facebook">
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+
+            {/* Social Links */}
+            <div className="bg-slate-700/30 p-6 rounded-lg">
+              <h3 className="text-lg font-semibold mb-4 pb-2 border-b border-slate-600">Connect With Us</h3>
+              <div className="flex space-x-4 mb-6">
+                <a href="https://facebook.com" className="bg-slate-600 hover:bg-blue-600 p-3 rounded-full transition-colors duration-300" aria-label="Facebook">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                   </svg>
                 </a>
-                <a href="https://twitter.com" className="hover:text-slate-300" aria-label="Twitter">
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <a href="https://twitter.com" className="bg-slate-600 hover:bg-blue-500 p-3 rounded-full transition-colors duration-300" aria-label="Twitter">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
                   </svg>
                 </a>
-                <a href="https://linkedin.com" className="hover:text-slate-300" aria-label="LinkedIn">
-                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                <a href="https://linkedin.com" className="bg-slate-600 hover:bg-blue-700 p-3 rounded-full transition-colors duration-300" aria-label="LinkedIn">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                     <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.016 18.6h-2.91v-4.575c0-1.084-.021-2.48-1.51-2.48-1.512 0-1.746 1.18-1.746 2.4V18.6H7.95V8.4h2.79v1.17h.042c.387-.735 1.332-1.512 2.742-1.512 2.94 0 3.489 1.935 3.489 4.447V18.6h.003z"/>
                     <circle cx="4.2" cy="4.2" r="2.4"/>
                     <path d="M5.4 18.6H3V8.4h2.4v10.2z"/>
@@ -641,9 +654,31 @@ function HomePage() {
                 </a>
               </div>
             </div>
+            
+            {/* Map Section */}
+            <div className="md:col-span-2 bg-slate-700/30 p-6 rounded-lg">
+              <h3 className="text-lg font-semibold mb-4 pb-2 border-b border-slate-600">Find Us</h3>
+              <div className="w-full h-56 rounded-lg overflow-hidden border border-slate-600 shadow-xl">
+                <iframe
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3652.191277524978!2d90.39670607596543!3d23.728738579453224!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3755b8ef3976bbbd%3A0x1b3140066a1d7bb8!2sDepartment%20of%20Computer%20Science%20and%20Engineering%2C%20University%20of%20Dhaka!5e0!3m2!1sen!2sbd!4v1721041589123!5m2!1sen!2sbd"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen=""
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Department of Computer Science and Engineering, University of Dhaka"
+                ></iframe>
+              </div>
+              <div className="mt-4 p-3 bg-slate-600/50 rounded-lg text-sm text-slate-200">
+                <p className="font-medium">Science Complex, University of Dhaka</p>
+                <p>Ramna, Dhaka 1000, Bangladesh</p>
+              </div>
+            </div>
           </div>
-          <div className="mt-8 text-center text-sm">
-            <p>© 2025 Department of Computer Science & Engineering, University of Dhaka. All rights reserved.</p>
+          
+          <div className="mt-10 pt-6 border-t border-slate-700 text-center">
+            <p className="text-sm text-slate-400">© 2025 Department of Computer Science & Engineering, University of Dhaka. All rights reserved.</p>
           </div>
         </div>
       </footer>

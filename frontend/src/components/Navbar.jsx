@@ -31,7 +31,7 @@ const Navbar = () => {
             </div>
             <div className="hidden md:flex items-center space-x-1">
               <Link to="/people" className="py-4 px-2 hover:text-slate-300 transition duration-300">People Directory</Link>
-              <Link to="/chairman" className="py-4 px-2 hover:text-slate-300 transition duration-300">About Chairman</Link>
+              <Link to="/chairman" className="py-4 px-2 hover:text-slate-300 transition duration-300">About</Link>
               <Link to="/admission-hub" className="py-4 px-2 hover:text-slate-300 transition duration-300">Admission Hub</Link>
               <Link to="/apply" className="py-4 px-2 hover:text-slate-300 transition duration-300">Apply Now</Link>
               <Link to="/notice-board" className="py-4 px-2 hover:text-slate-300 transition duration-300">Notice Board</Link>
