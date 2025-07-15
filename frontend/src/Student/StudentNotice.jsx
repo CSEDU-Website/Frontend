@@ -28,10 +28,47 @@ const StudentNotice = () => {
     const fetchNoticesInternal = async () => {
       setLoading(true);
       setError(null);
+      // const studentId =
+      //     localStorage.getItem("student_id") ||
+      //     sessionStorage.getItem("student_id");
+      let userString = sessionStorage.getItem("user");
+      let studentId = null;
+
+      if (userString) {
+        try {
+          const userObj = JSON.parse(userString);
+          studentId = userObj.id; // or userObj.student_id if that's the field
+          // If batch is also present and you need it, use userObj.batch
+        } catch (e) {
+          console.error("Failed to parse user from sessionStorage:", e);
+        }
+      }
+      console.log(studentId);
+      if (!studentId) {
+        userString = localStorage.getItem("user");
+        if (userString) {
+          try {
+            const userObj = JSON.parse(userString);
+            studentId = userObj.id; // or userObj.student_id if that's the field
+          } catch (e) {
+            console.error("Failed to parse user from localStorage:", e);
+          }
+        }
+      }
+      if (!studentId) {
+        setError("Student ID not found. Please log in again.");
+        setLoading(false);
+        return;
+      }
+    
       try {
         // Notices are sent to all batches, no batch filtering needed
-        const response = await axios.get(`${BACKEND_URL}/student/notice/upcoming`);
+        //const studentId = localStorage.getItem('student_id');
         
+        //const response = await axios.get(`${BACKEND_URL}/student/notice/upcoming`);
+        const response = await axios.get(
+          `${BACKEND_URL}/student/notice/upcoming?student_id=${studentId}`
+        );
         // Sort notices by date and time (newest first)
         const sortedNotices = response.data.sort((a, b) => {
           return new Date(b.date) - new Date(a.date);
@@ -72,6 +109,7 @@ const StudentNotice = () => {
     try {
       const response = await axios.get(`${BACKEND_URL}/student/notice/${noticeId}`);
       setSelectedNotice(response.data);
+      console.log("Selected notice:", response.data); // <-- Add this line
       setShowModal(true);
     } catch (error) {
       console.error('Error fetching specific notice:', error);
@@ -306,7 +344,7 @@ const StudentNotice = () => {
                 <div className="mb-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-3">Description</h3>
                   <div className="text-gray-700 whitespace-pre-wrap">
-                    {selectedNotice.description}
+                    {selectedNotice.description || selectedNotice.content}
                   </div>
                 </div>
                 

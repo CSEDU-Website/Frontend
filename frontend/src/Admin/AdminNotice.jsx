@@ -62,8 +62,8 @@ function AdminNotice() {
     { value: 'Central', label: 'Central', icon: GraduationCap }
   ]
 
-  // Batch options (assuming batches 45-55)
-  const batchOptions = Array.from({ length: 11 }, (_, i) => 45 + i)
+  // Batch options (assuming batches 1-32)
+  const batchOptions = Array.from({ length: 31 }, (_, i) => 1 + i)
 
   // Fetch all notices
   const fetchNotices = async () => {

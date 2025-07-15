@@ -89,6 +89,13 @@ export default function Dashboard() {
           params: { user_id: userId },
         });
         setStudentProfile(response?.data);
+        console.log("Student profile response:", response.data);
+        if (response?.data?.id) {
+          localStorage.setItem('student_id', response.data.id);
+          sessionStorage.setItem('student_id', response.data.id);
+        }else{
+          console.log("Student ID not found");
+        }
       } catch (error) {
         console.error(
           "Failed to fetch student:",
