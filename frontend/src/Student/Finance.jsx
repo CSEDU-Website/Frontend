@@ -15,6 +15,7 @@ import {
 import axios from "axios";
 import React from "react";
 import MockPaymentGateway from '../components/MockPaymentGateway';
+import { financeApi } from '../api';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -61,19 +62,44 @@ export default function Finance() {
     } catch (e) { }
     const userId = user?.id;
 
-    // Fetch finance data from backend
+    // Fetch finance data from backend (using only Sami/api/financeApi.py endpoints)
     React.useEffect(() => {
         if (!userId) return;
         setLoading(true);
         setError("");
-        setSuccessMessage(""); // Clear success messages when refreshing data
-        axios.get(`${BACKEND_URL}/v1/finance/student/${userId}`)
-            .then(res => {
-                setFees(res.data);
+        setSuccessMessage("");
+        Promise.all([
+            axios.get(financeApi.listEvents()),
+            axios.get(financeApi.listPaymentsPending()),
+            axios.get(financeApi.listPaymentsPaid())
+        ])
+            .then(([eventsRes, pendingRes, paidRes]) => {
+                const events = eventsRes.data;
+                const allPayments = [...pendingRes.data, ...paidRes.data];
+                // Deduplicate: Only keep the latest payment per event for this user
+                const userPaymentsMap = {};
+                allPayments
+                    .filter(p => p.user_id === userId)
+                    .forEach(p => {
+                        if (!userPaymentsMap[p.event_id] || new Date(p.submitted_at) > new Date(userPaymentsMap[p.event_id].submitted_at)) {
+                            userPaymentsMap[p.event_id] = p;
+                        }
+                    });
+                // Map events to payment status for this user
+                const fees = events.map(event => {
+                    const payment = userPaymentsMap[event.id];
+                    return {
+                        ...event,
+                        status: payment ? payment.status : 'pending',
+                        transaction_id: payment ? payment.transaction_id : null,
+                        paid_at: payment ? payment.verified_at : null,
+                        event_id: event.id,
+                        // Add any other fields needed for UI
+                    };
+                });
+                setFees(fees);
             })
-            .catch(err => {
-                setError("Failed to load finance data");
-            })
+            .catch(() => setError("Failed to load finance data"))
             .finally(() => setLoading(false));
     }, [userId]);
 
@@ -104,7 +130,7 @@ export default function Finance() {
 
         try {
             // Submit payment to backend
-            const response = await axios.post(`${BACKEND_URL}/v1/finance/payments`, {
+            const response = await axios.post(financeApi.submitPayment(), {
                 user_id: userId,
                 event_id: selectedFee.event_id,
                 transaction_id: paymentData.transaction_id,
@@ -114,17 +140,46 @@ export default function Finance() {
 
             // Refresh finance data
             setLoading(true);
-            const refreshResponse = await axios.get(`${BACKEND_URL}/v1/finance/student/${userId}`);
-            setFees(refreshResponse.data);
-            setError("");
-            setSuccessMessage("Payment successful!");
+            // Re-fetch events and payments
+            Promise.all([
+                axios.get(financeApi.listEvents()),
+                axios.get(financeApi.listPaymentsPending()),
+                axios.get(financeApi.listPaymentsPaid())
+            ])
+                .then(([eventsRes, pendingRes, paidRes]) => {
+                    const events = eventsRes.data;
+                    const allPayments = [...pendingRes.data, ...paidRes.data];
+                    // Deduplicate: Only keep the latest payment per event for this user
+                    const userPaymentsMap = {};
+                    allPayments
+                        .filter(p => p.user_id === userId)
+                        .forEach(p => {
+                            if (!userPaymentsMap[p.event_id] || new Date(p.submitted_at) > new Date(userPaymentsMap[p.event_id].submitted_at)) {
+                                userPaymentsMap[p.event_id] = p;
+                            }
+                        });
+                    const fees = events.map(event => {
+                        const payment = userPaymentsMap[event.id];
+                        return {
+                            ...event,
+                            status: payment ? payment.status : 'pending',
+                            transaction_id: payment ? payment.transaction_id : null,
+                            paid_at: payment ? payment.verified_at : null,
+                            event_id: event.id,
+                        };
+                    });
+                    setFees(fees);
+                    setError("");
+                    setSuccessMessage("Payment successful!");
+                })
+                .catch(() => setError("Failed to load finance data"))
+                .finally(() => setLoading(false));
 
             setShowPaymentModal(false);
             setSelectedFee(null);
         } catch (err) {
             console.error("Payment submission failed:", err);
             setError("Failed to submit payment. Please try again.");
-        } finally {
             setLoading(false);
         }
     };

@@ -12,6 +12,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import AdminPaymentVerification from './AdminPaymentVerification';
+import { financeApi } from '../api';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -29,6 +30,12 @@ export default function AdminFinance() {
     deadline: ''
   });
 
+  // Filter states
+  const [filterBatch, setFilterBatch] = useState('');
+  const [filterStudentId, setFilterStudentId] = useState('');
+  const [filterDeadline, setFilterDeadline] = useState('');
+  const [filteredEvents, setFilteredEvents] = useState([]);
+
   // Get current user
   const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
   const isAdmin = user.role === 'admin';
@@ -41,10 +48,22 @@ export default function AdminFinance() {
     fetchFinanceEvents();
   }, [isAdmin]);
 
+  useEffect(() => {
+    // Filter logic for events
+    let events = [...financeEvents];
+    if (filterBatch) {
+      events = events.filter(e => e.batch && e.batch.toString().toLowerCase().includes(filterBatch.toLowerCase()));
+    }
+    if (filterDeadline) {
+      events = events.filter(e => e.deadline && e.deadline.startsWith(filterDeadline));
+    }
+    setFilteredEvents(events);
+  }, [financeEvents, filterBatch, filterDeadline]);
+
   const fetchFinanceEvents = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${BACKEND_URL}/v1/finance/events`);
+      const response = await axios.get(financeApi.listEvents());
       setFinanceEvents(response.data);
     } catch (err) {
       setError('Failed to fetch finance events');
@@ -105,10 +124,10 @@ export default function AdminFinance() {
 
       if (editingEvent) {
         // Update existing event (you'll need to add this endpoint)
-        await axios.put(`${BACKEND_URL}/v1/finance/events/${editingEvent.id}`, payload);
+        await axios.put(financeApi.updateEvent(editingEvent.id), payload);
       } else {
         // Create new event
-        await axios.post(`${BACKEND_URL}/v1/finance/events`, payload);
+        await axios.post(financeApi.createEvent(), payload);
       }
 
       closeModal();
@@ -125,7 +144,7 @@ export default function AdminFinance() {
     }
 
     try {
-      await axios.delete(`${BACKEND_URL}/v1/finance/events/${eventId}`);
+      await axios.delete(financeApi.deleteEvent(eventId));
       fetchFinanceEvents();
       setError('');
     } catch (err) {
@@ -172,8 +191,8 @@ export default function AdminFinance() {
               <button
                 onClick={() => setActiveTab('events')}
                 className={`pb-2 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'events'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
                   }`}
               >
                 Finance Events
@@ -181,8 +200,8 @@ export default function AdminFinance() {
               <button
                 onClick={() => setActiveTab('payments')}
                 className={`pb-2 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'payments'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
                   }`}
               >
                 Payment Verification
@@ -210,7 +229,7 @@ export default function AdminFinance() {
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
                   <p className="mt-2 text-gray-600">Loading finance events...</p>
                 </div>
-              ) : financeEvents.length === 0 ? (
+              ) : filteredEvents.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-gray-600">No finance events found.</p>
                 </div>
@@ -228,7 +247,7 @@ export default function AdminFinance() {
                       </tr>
                     </thead>
                     <tbody>
-                      {financeEvents.map((event) => (
+                      {filteredEvents.map((event) => (
                         <tr key={event.id} className="border-b border-gray-100 hover:bg-gray-50">
                           <td className="py-3 px-4">{event.title}</td>
                           <td className="py-3 px-4">৳{event.amount.toLocaleString()}</td>
