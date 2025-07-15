@@ -500,7 +500,7 @@ function ApplicationForm() {
                   className="mt-1 h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
                 />
                 <label className="ml-2 text-sm text-gray-700">
-                  I agree to the <a href="#" className="text-orange-600 hover:text-orange-500">Terms and Conditions</a>
+                  I agree to the <a href="https://drive.google.com/file/d/18dplzMW7aOFv_pIXtkqrm_Y0Qf422-G8/view?usp=drive_link" className="text-orange-600 hover:text-orange-500">Terms and Conditions</a>
                 </label>
               </div>
               <div className="flex items-start">
@@ -513,7 +513,7 @@ function ApplicationForm() {
                   className="mt-1 h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
                 />
                 <label className="ml-2 text-sm text-gray-700">
-                  I agree to the <a href="#" className="text-orange-600 hover:text-orange-500">Privacy Policy</a>
+                  I agree to the <a href="https://drive.google.com/file/d/1i_X2oL76iG9E-nDElxD-hnXsBkYkh3IT/view?usp=drive_link" className="text-orange-600 hover:text-orange-500">Privacy Policy</a>
                 </label>
               </div>
             </div>
