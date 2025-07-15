@@ -82,6 +82,7 @@ function ApplicationForm() {
       // Upload files first if they exist
       let transcriptUrl = null;
       let recommendationLetterUrl = null;
+      let resumeUrl = null;
       
       if (formData.transcript) {
         const transcriptFormData = new FormData();
@@ -100,6 +101,8 @@ function ApplicationForm() {
       if (formData.resume) {
         const resumeFormData = new FormData();
         resumeFormData.append('file', formData.resume);
+        const resumeResponse = await axios.post(`${BACKEND_URL}/utility/upload`, resumeFormData);
+        resumeUrl = resumeResponse.data.url;
       }
       
       // Prepare application data for backend
