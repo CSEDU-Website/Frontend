@@ -12,105 +12,11 @@ import {
     Download,
     Eye,
 } from "lucide-react";
+import axios from "axios";
+import React from "react";
+import MockPaymentGateway from '../components/MockPaymentGateway';
 
-const fees = [
-    {
-        id: 1,
-        title: "CSE Tuition Fee - Spring 2024",
-        description: "Semester tuition fee for Computer Science and Engineering courses",
-        amount: 45000,
-        dueDate: "2024-02-15",
-        status: "pending",
-        image: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=300&fit=crop",
-        category: "Tuition",
-        semester: "Spring 2024",
-        details: "Includes CSE course materials, programming lab access, and software licenses"
-    },
-    {
-        id: 2,
-        title: "Computer Lab Equipment Fee",
-        description: "Annual fee for CSE computer lab access and equipment maintenance",
-        amount: 8000,
-        dueDate: "2024-01-30",
-        status: "paid",
-        image: "https://images.unsplash.com/photo-1518709268805-4e9042af2176?w=400&h=300&fit=crop",
-        category: "Lab Fee",
-        semester: "Annual",
-        details: "Covers computer lab maintenance, programming software licenses, and hardware upgrades"
-    },
-    {
-        id: 3,
-        title: "CSE Student Activity Fee",
-        description: "Fee for CSE student clubs, hackathons, and tech events",
-        amount: 3000,
-        dueDate: "2024-02-28",
-        status: "overdue",
-        image: "https://images.unsplash.com/photo-1523240794102-9e5fa7c444b1?w=400&h=300&fit=crop",
-        category: "Activity",
-        semester: "Spring 2024",
-        details: "Supports CSE student organizations, coding competitions, and tech workshops"
-    },
-    {
-        id: 4,
-        title: "Digital Library & Resources Fee",
-        description: "Access to programming databases, e-books, and research materials",
-        amount: 2500,
-        dueDate: "2024-03-15",
-        status: "pending",
-        image: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop",
-        category: "Resource",
-        semester: "Spring 2024",
-        details: "Includes online programming resources, IEEE papers, and software development tools"
-    },
-    {
-        id: 5,
-        title: "Campus Transportation Fee",
-        description: "Campus shuttle service and parking facilities for CSE students",
-        amount: 1500,
-        dueDate: "2024-02-10",
-        status: "paid",
-        image: "https://images.unsplash.com/photo-1549924231-f129b911e442?w=400&h=300&fit=crop",
-        category: "Transport",
-        semester: "Spring 2024",
-        details: "Covers campus shuttle service, parking permits, and transportation infrastructure"
-    },
-    {
-        id: 6,
-        title: "Health Services Fee",
-        description: "Campus health center access and medical services for CSE students",
-        amount: 2000,
-        dueDate: "2024-03-01",
-        status: "pending",
-        image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=400&h=300&fit=crop",
-        category: "Health",
-        semester: "Spring 2024",
-        details: "Provides access to campus health center, counseling services, and emergency care"
-    },
-    {
-        id: 7,
-        title: "Programming Contest Fee",
-        description: "Registration fee for CSE programming competitions and hackathons",
-        amount: 1000,
-        dueDate: "2024-02-20",
-        status: "pending",
-        image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=300&fit=crop",
-        category: "Contest",
-        semester: "Spring 2024",
-        details: "Covers participation in ACM ICPC, hackathons, and coding competitions"
-    },
-    {
-        id: 8,
-        title: "Software License Fee",
-        description: "Annual fee for programming software and development tools",
-        amount: 3500,
-        dueDate: "2024-01-25",
-        status: "paid",
-        image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=300&fit=crop",
-        category: "Software",
-        semester: "Annual",
-        details: "Includes licenses for IDEs, development tools, and cloud computing platforms"
-    }
-];
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const getStatusColor = (status) => {
     switch (status) {
@@ -140,9 +46,46 @@ const getStatusIcon = (status) => {
 
 export default function Finance() {
     const navigate = useNavigate();
+    const [fees, setFees] = useState([]);
     const [selectedFee, setSelectedFee] = useState(null);
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [showDownloadMenu, setShowDownloadMenu] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [successMessage, setSuccessMessage] = useState("");
+
+    // Get user from localStorage/sessionStorage
+    let user = {};
+    try {
+        user = JSON.parse(localStorage.getItem("user")) || JSON.parse(sessionStorage.getItem("user"));
+    } catch (e) { }
+    const userId = user?.id;
+
+    // Fetch finance data from backend
+    React.useEffect(() => {
+        if (!userId) return;
+        setLoading(true);
+        setError("");
+        setSuccessMessage(""); // Clear success messages when refreshing data
+        axios.get(`${BACKEND_URL}/v1/finance/student/${userId}`)
+            .then(res => {
+                setFees(res.data);
+            })
+            .catch(err => {
+                setError("Failed to load finance data");
+            })
+            .finally(() => setLoading(false));
+    }, [userId]);
+
+    // Clear success message after 5 seconds
+    React.useEffect(() => {
+        if (successMessage) {
+            const timer = setTimeout(() => {
+                setSuccessMessage("");
+            }, 5000);
+            return () => clearTimeout(timer);
+        }
+    }, [successMessage]);
 
     const totalFees = fees.reduce((sum, fee) => sum + fee.amount, 0);
     const paidFees = fees.filter(fee => fee.status === "paid").reduce((sum, fee) => sum + fee.amount, 0);
@@ -152,11 +95,41 @@ export default function Finance() {
     const handlePayNow = (fee) => {
         setSelectedFee(fee);
         setShowPaymentModal(true);
+        setError(""); // Clear any previous errors
+        setSuccessMessage(""); // Clear any previous success messages
     };
 
-    const handlePayment = () => {
-        // Here you would integrate with a payment gateway
-        alert(`Processing payment for ${selectedFee.title} - ৳${selectedFee.amount.toLocaleString()}`);
+    const handlePaymentSuccess = async (paymentData) => {
+        if (!selectedFee || !userId) return;
+
+        try {
+            // Submit payment to backend
+            const response = await axios.post(`${BACKEND_URL}/v1/finance/payments`, {
+                user_id: userId,
+                event_id: selectedFee.event_id,
+                transaction_id: paymentData.transaction_id,
+            });
+
+            console.log('Payment submitted successfully:', response.data);
+
+            // Refresh finance data
+            setLoading(true);
+            const refreshResponse = await axios.get(`${BACKEND_URL}/v1/finance/student/${userId}`);
+            setFees(refreshResponse.data);
+            setError("");
+            setSuccessMessage("Payment successful!");
+
+            setShowPaymentModal(false);
+            setSelectedFee(null);
+        } catch (err) {
+            console.error("Payment submission failed:", err);
+            setError("Failed to submit payment. Please try again.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handlePaymentCancel = () => {
         setShowPaymentModal(false);
         setSelectedFee(null);
     };
@@ -254,6 +227,18 @@ export default function Finance() {
                     <div className="text-xl font-bold">CSE Finance & Fees</div>
                 </div>
                 <div className="flex items-center gap-4">
+                    {successMessage && (
+                        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-2 rounded-lg flex items-center gap-2">
+                            <CheckCircle size={16} />
+                            {successMessage}
+                        </div>
+                    )}
+                    {error && (
+                        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg flex items-center gap-2">
+                            <AlertCircle size={16} />
+                            {error}
+                        </div>
+                    )}
                     <div className="relative">
                         <button
                             onClick={() => setShowDownloadMenu(!showDownloadMenu)}
@@ -333,143 +318,92 @@ export default function Finance() {
             {/* Fees Grid */}
             <div className="p-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {fees.map((fee) => (
-                        <div key={fee.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-                            {/* Fee Image */}
-                            <div className="relative h-48 bg-slate-200">
-                                <img
-                                    src={fee.image}
-                                    alt={fee.title}
-                                    className="w-full h-full object-cover"
-                                />
-                                <div className="absolute top-3 right-3">
-                                    <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(fee.status)}`}>
-                                        <div className="flex items-center gap-1">
-                                            {getStatusIcon(fee.status)}
-                                            {fee.status.charAt(0).toUpperCase() + fee.status.slice(1)}
+                    {loading ? (
+                        <p>Loading fees...</p>
+                    ) : error ? (
+                        <p className="text-red-500">{error}</p>
+                    ) : fees.length === 0 ? (
+                        <p>No finance data available for this student.</p>
+                    ) : (
+                        fees.map((fee) => (
+                            <div key={fee.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                                {/* Fee Image */}
+                                <div className="relative h-48 bg-slate-200">
+                                    <img
+                                        src={fee.image}
+                                        alt={fee.title}
+                                        className="w-full h-full object-cover"
+                                    />
+                                    <div className="absolute top-3 right-3">
+                                        <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getStatusColor(fee.status)}`}>
+                                            <div className="flex items-center gap-1">
+                                                {getStatusIcon(fee.status)}
+                                                {fee.status.charAt(0).toUpperCase() + fee.status.slice(1)}
+                                            </div>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                {/* Fee Content */}
+                                <div className="p-6">
+                                    <div className="flex items-start justify-between mb-3">
+                                        <div>
+                                            <h3 className="font-semibold text-lg text-slate-900 mb-1">{fee.title}</h3>
+                                            <p className="text-sm text-slate-600 mb-2">{fee.description}</p>
                                         </div>
-                                    </span>
+                                        <div className="text-right">
+                                            <p className="text-2xl font-bold text-slate-900">৳{fee.amount.toLocaleString()}</p>
+                                            <p className="text-xs text-slate-500">{fee.category}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2 mb-4">
+                                        <div className="flex items-center gap-2 text-sm text-slate-600">
+                                            <Calendar size={14} />
+                                            <span>Due: {new Date(fee.dueDate).toLocaleDateString()}</span>
+                                        </div>
+                                        <div className="flex items-center gap-2 text-sm text-slate-600">
+                                            <Eye size={14} />
+                                            <span>{fee.semester}</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => handlePayNow(fee)}
+                                            disabled={fee.status === "paid"}
+                                            className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${fee.status === "paid"
+                                                ? "bg-green-100 text-green-800 cursor-not-allowed"
+                                                : "bg-slate-600 text-white hover:bg-slate-700"
+                                                }`}
+                                        >
+                                            <CreditCard size={16} />
+                                            {fee.status === "paid" ? "Paid" : "Pay Now"}
+                                        </button>
+                                        <button
+                                            onClick={() => downloadStatement('csv')}
+                                            className="flex items-center justify-center p-2 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
+                                            title="Download this fee receipt"
+                                        >
+                                            <Download size={16} />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-
-                            {/* Fee Content */}
-                            <div className="p-6">
-                                <div className="flex items-start justify-between mb-3">
-                                    <div>
-                                        <h3 className="font-semibold text-lg text-slate-900 mb-1">{fee.title}</h3>
-                                        <p className="text-sm text-slate-600 mb-2">{fee.description}</p>
-                                    </div>
-                                    <div className="text-right">
-                                        <p className="text-2xl font-bold text-slate-900">৳{fee.amount.toLocaleString()}</p>
-                                        <p className="text-xs text-slate-500">{fee.category}</p>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-2 mb-4">
-                                    <div className="flex items-center gap-2 text-sm text-slate-600">
-                                        <Calendar size={14} />
-                                        <span>Due: {new Date(fee.dueDate).toLocaleDateString()}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm text-slate-600">
-                                        <Eye size={14} />
-                                        <span>{fee.semester}</span>
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-2">
-                                    <button
-                                        onClick={() => handlePayNow(fee)}
-                                        disabled={fee.status === "paid"}
-                                        className={`flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${fee.status === "paid"
-                                            ? "bg-green-100 text-green-800 cursor-not-allowed"
-                                            : "bg-slate-600 text-white hover:bg-slate-700"
-                                            }`}
-                                    >
-                                        <CreditCard size={16} />
-                                        {fee.status === "paid" ? "Paid" : "Pay Now"}
-                                    </button>
-                                    <button
-                                        onClick={() => downloadStatement('csv')}
-                                        className="flex items-center justify-center p-2 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
-                                        title="Download this fee receipt"
-                                    >
-                                        <Download size={16} />
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
+                        ))
+                    )}
                 </div>
             </div>
 
-            {/* Payment Modal */}
+            {/* Mock Payment Gateway Modal */}
             {showPaymentModal && selectedFee && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-xl p-6 max-w-md w-full mx-4">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold">Payment Details</h3>
-                            <button
-                                onClick={() => setShowPaymentModal(false)}
-                                className="text-slate-400 hover:text-slate-600"
-                            >
-                                ×
-                            </button>
-                        </div>
-
-                        <div className="space-y-4">
-                            <div>
-                                <h4 className="font-medium text-slate-900">{selectedFee.title}</h4>
-                                <p className="text-sm text-slate-600 mt-1">{selectedFee.details}</p>
-                            </div>
-
-                            <div className="bg-slate-50 rounded-lg p-4">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-slate-600">Amount:</span>
-                                    <span className="text-xl font-bold text-slate-900">৳{selectedFee.amount.toLocaleString()}</span>
-                                </div>
-                                <div className="flex justify-between items-center mt-2">
-                                    <span className="text-slate-600">Due Date:</span>
-                                    <span className="text-slate-900">{new Date(selectedFee.dueDate).toLocaleDateString()}</span>
-                                </div>
-                            </div>
-
-                            <div className="space-y-3">
-                                <input
-                                    type="text"
-                                    placeholder="Card Number"
-                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
-                                />
-                                <div className="grid grid-cols-2 gap-3">
-                                    <input
-                                        type="text"
-                                        placeholder="MM/YY"
-                                        className="px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
-                                    />
-                                    <input
-                                        type="text"
-                                        placeholder="CVV"
-                                        className="px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-slate-500"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="flex gap-3">
-                                <button
-                                    onClick={() => setShowPaymentModal(false)}
-                                    className="flex-1 px-4 py-2 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={handlePayment}
-                                    className="flex-1 px-4 py-2 bg-slate-600 text-white rounded-lg hover:bg-slate-700 transition-colors"
-                                >
-                                    Pay ৳{selectedFee.amount.toLocaleString()}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <MockPaymentGateway
+                    amount={selectedFee.amount}
+                    feeTitle={selectedFee.title}
+                    onSuccess={handlePaymentSuccess}
+                    onCancel={handlePaymentCancel}
+                    onClose={handlePaymentCancel}
+                />
             )}
 
             {/* Click outside to close download menu */}

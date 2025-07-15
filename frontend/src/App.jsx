@@ -27,6 +27,7 @@ import MyCourses from './Student/MyCourses'
 import ArchivedCourses from './Student/ArchivedCourses'
 import SettingsPage from './Student/Settings'
 import Finance from './Student/Finance'
+import AdminFinance from './Admin/AdminFinance'
 import NoticeBoard from './pages/NoticeBoard'
 
 function App() {
@@ -73,6 +74,14 @@ function App() {
           element={
             <RequireAuth allowedRole="admin">
               <AdminDashboard />
+            </RequireAuth>
+          }
+        />
+        <Route
+          path="/admin-finance"
+          element={
+            <RequireAuth allowedRole="admin">
+              <AdminFinance />
             </RequireAuth>
           }
         />
