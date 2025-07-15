@@ -12,6 +12,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import AdminPaymentVerification from './AdminPaymentVerification';
+import { financeApi } from '../api';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -44,7 +45,7 @@ export default function AdminFinance() {
   const fetchFinanceEvents = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${BACKEND_URL}/v1/finance/events`);
+      const response = await axios.get(financeApi.listEvents());
       setFinanceEvents(response.data);
     } catch (err) {
       setError('Failed to fetch finance events');
@@ -105,10 +106,10 @@ export default function AdminFinance() {
 
       if (editingEvent) {
         // Update existing event (you'll need to add this endpoint)
-        await axios.put(`${BACKEND_URL}/v1/finance/events/${editingEvent.id}`, payload);
+        await axios.put(financeApi.updateEvent(editingEvent.id), payload);
       } else {
         // Create new event
-        await axios.post(`${BACKEND_URL}/v1/finance/events`, payload);
+        await axios.post(financeApi.createEvent(), payload);
       }
 
       closeModal();
@@ -125,7 +126,7 @@ export default function AdminFinance() {
     }
 
     try {
-      await axios.delete(`${BACKEND_URL}/v1/finance/events/${eventId}`);
+      await axios.delete(financeApi.deleteEvent(eventId));
       fetchFinanceEvents();
       setError('');
     } catch (err) {
@@ -172,8 +173,8 @@ export default function AdminFinance() {
               <button
                 onClick={() => setActiveTab('events')}
                 className={`pb-2 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'events'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
                   }`}
               >
                 Finance Events
@@ -181,8 +182,8 @@ export default function AdminFinance() {
               <button
                 onClick={() => setActiveTab('payments')}
                 className={`pb-2 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'payments'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
                   }`}
               >
                 Payment Verification
