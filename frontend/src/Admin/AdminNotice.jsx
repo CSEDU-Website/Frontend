@@ -50,7 +50,7 @@ function AdminNotice() {
     batch: '',
     date: '',
     notice_from: 'Admin',
-    attachments: {}
+    attachments: []
   })
 
   // Notice source options
@@ -158,7 +158,7 @@ function AdminNotice() {
       batch: '',
       date: '',
       notice_from: 'Admin',
-      attachments: {}
+      attachments: []
     })
   }
 
