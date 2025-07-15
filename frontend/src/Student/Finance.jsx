@@ -76,11 +76,18 @@ export default function Finance() {
             .then(([eventsRes, pendingRes, paidRes]) => {
                 const events = eventsRes.data;
                 const allPayments = [...pendingRes.data, ...paidRes.data];
-                // Filter payments for this user
-                const userPayments = allPayments.filter(p => p.user_id === userId);
+                // Deduplicate: Only keep the latest payment per event for this user
+                const userPaymentsMap = {};
+                allPayments
+                    .filter(p => p.user_id === userId)
+                    .forEach(p => {
+                        if (!userPaymentsMap[p.event_id] || new Date(p.submitted_at) > new Date(userPaymentsMap[p.event_id].submitted_at)) {
+                            userPaymentsMap[p.event_id] = p;
+                        }
+                    });
                 // Map events to payment status for this user
                 const fees = events.map(event => {
-                    const payment = userPayments.find(p => p.event_id === event.id);
+                    const payment = userPaymentsMap[event.id];
                     return {
                         ...event,
                         status: payment ? payment.status : 'pending',
@@ -142,9 +149,17 @@ export default function Finance() {
                 .then(([eventsRes, pendingRes, paidRes]) => {
                     const events = eventsRes.data;
                     const allPayments = [...pendingRes.data, ...paidRes.data];
-                    const userPayments = allPayments.filter(p => p.user_id === userId);
+                    // Deduplicate: Only keep the latest payment per event for this user
+                    const userPaymentsMap = {};
+                    allPayments
+                        .filter(p => p.user_id === userId)
+                        .forEach(p => {
+                            if (!userPaymentsMap[p.event_id] || new Date(p.submitted_at) > new Date(userPaymentsMap[p.event_id].submitted_at)) {
+                                userPaymentsMap[p.event_id] = p;
+                            }
+                        });
                     const fees = events.map(event => {
-                        const payment = userPayments.find(p => p.event_id === event.id);
+                        const payment = userPaymentsMap[event.id];
                         return {
                             ...event,
                             status: payment ? payment.status : 'pending',

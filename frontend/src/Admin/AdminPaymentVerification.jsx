@@ -25,6 +25,11 @@ const AdminPaymentVerification = () => {
     const [showPaymentModal, setShowPaymentModal] = useState(false);
     const [verifying, setVerifying] = useState(false);
 
+    // Filter states
+    const [filterStudentId, setFilterStudentId] = useState('');
+    const [filterBatch, setFilterBatch] = useState('');
+    const [filterDeadline, setFilterDeadline] = useState('');
+
     useEffect(() => {
         fetchPaymentData();
     }, []);
@@ -46,6 +51,18 @@ const AdminPaymentVerification = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    // Filtering logic for payments
+    const filterPayments = (payments) => {
+        return payments.filter(payment => {
+            const event = financeEvents.find(e => e.id === payment.event_id);
+            let match = true;
+            if (filterStudentId && payment.user_id.toString() !== filterStudentId.trim()) match = false;
+            if (filterBatch && event && event.batch && !event.batch.toString().toLowerCase().includes(filterBatch.toLowerCase())) match = false;
+            if (filterDeadline && event && event.deadline && !event.deadline.startsWith(filterDeadline)) match = false;
+            return match;
+        });
     };
 
     const handleVerifyPayment = async (paymentId) => {
@@ -116,6 +133,30 @@ const AdminPaymentVerification = () => {
 
     return (
         <div className="space-y-6">
+            {/* Filter Controls */}
+            <div className="flex flex-wrap gap-4 mb-4">
+                <input
+                    type="text"
+                    placeholder="Filter by Student ID"
+                    value={filterStudentId}
+                    onChange={e => setFilterStudentId(e.target.value)}
+                    className="border rounded px-2 py-1"
+                />
+                <input
+                    type="text"
+                    placeholder="Filter by Batch"
+                    value={filterBatch}
+                    onChange={e => setFilterBatch(e.target.value)}
+                    className="border rounded px-2 py-1"
+                />
+                <input
+                    type="date"
+                    placeholder="Filter by Deadline"
+                    value={filterDeadline}
+                    onChange={e => setFilterDeadline(e.target.value)}
+                    className="border rounded px-2 py-1"
+                />
+            </div>
             {/* Header */}
             <div className="flex justify-between items-center">
                 <div>
@@ -124,10 +165,10 @@ const AdminPaymentVerification = () => {
                 </div>
                 <div className="flex gap-4">
                     <div className="bg-yellow-50 border border-yellow-200 rounded-lg px-4 py-2">
-                        <div className="text-sm text-yellow-600">Pending: {pendingPayments.length}</div>
+                        <div className="text-sm text-yellow-600">Pending: {filterPayments(pendingPayments).length}</div>
                     </div>
                     <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-2">
-                        <div className="text-sm text-green-600">Verified: {paidPayments.length}</div>
+                        <div className="text-sm text-green-600">Verified: {filterPayments(paidPayments).length}</div>
                     </div>
                 </div>
             </div>
@@ -140,15 +181,15 @@ const AdminPaymentVerification = () => {
                 </div>
 
                 <div className="p-6">
-                    {pendingPayments.length === 0 ? (
+                    {filterPayments(pendingPayments).length === 0 ? (
                         <div className="text-center py-8">
                             <Clock size={48} className="mx-auto mb-4 text-gray-300" />
                             <p className="text-gray-600">No pending payments</p>
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            {pendingPayments.map((payment) => {
-                                const event = getEventDetails(payment.event_id);
+                            {filterPayments(pendingPayments).map((payment) => {
+                                const event = financeEvents.find(e => e.id === payment.event_id);
                                 return (
                                     <div key={payment.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                                         <div className="flex items-center justify-between">
@@ -217,15 +258,15 @@ const AdminPaymentVerification = () => {
                 </div>
 
                 <div className="p-6">
-                    {paidPayments.length === 0 ? (
+                    {filterPayments(paidPayments).length === 0 ? (
                         <div className="text-center py-8">
                             <CheckCircle size={48} className="mx-auto mb-4 text-gray-300" />
                             <p className="text-gray-600">No verified payments</p>
                         </div>
                     ) : (
                         <div className="space-y-4">
-                            {paidPayments.slice(0, 10).map((payment) => {
-                                const event = getEventDetails(payment.event_id);
+                            {filterPayments(paidPayments).slice(0, 10).map((payment) => {
+                                const event = financeEvents.find(e => e.id === payment.event_id);
                                 return (
                                     <div key={payment.id} className="border border-gray-200 rounded-lg p-4 bg-green-50">
                                         <div className="flex items-center justify-between">
