@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 import { 
   Bell, 
   Calendar, 
@@ -9,7 +10,8 @@ import {
   Filter,
   Search,
   Users,
-  BookOpen
+  BookOpen,
+  ArrowLeft
 } from 'lucide-react';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -150,6 +152,13 @@ const StudentNotice = () => {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
+          <Link
+            to="/student-dashboard"
+            className="inline-flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors duration-200 mb-4"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="font-medium">Back to Dashboard</span>
+          </Link>
           <div className="flex items-center mb-4">
             <Bell className="w-8 h-8 text-blue-600 mr-3" />
             <h1 className="text-3xl font-bold text-gray-900">Notice Board</h1>

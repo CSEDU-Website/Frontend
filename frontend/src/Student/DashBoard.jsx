@@ -30,34 +30,16 @@ import {
   Package,
   Bell,
   ArrowLeft, // Add ArrowLeft icon
+  Calendar,
+  Clock,
+  Activity,
+  TrendingUp
 } from "lucide-react";
 
 import axios from "axios";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-const schedule = [
-  { label: "Class CSE 4225", image: "/class.jpg" },
-  { label: "Lab CSE 4225", image: "/lab.jpg" },
-  { label: "Assignment CSE 4225", image: "/assignment.jpg" },
-];
-
-const notices = [
-  { date: "12 May", text: "Midterm Exam Schedule Published" },
-  { date: "12 May", text: "New Course Material Available" },
-];
-
-const tests = [
-  { subject: "Math for CS", date: "27th May" },
-  { subject: "Midterm Exam", date: "5th June" },
-];
-
-const chartData = [
-  { month: "Jan", missed: 14 },
-  { month: "Feb", missed: 4 },
-  { month: "Mar", missed: 8 },
-  { month: "Apr", missed: 15 },
-];
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -68,6 +50,10 @@ export default function Dashboard() {
     num_labs_today: 0,
     num_quizzes_today: 0,
   });
+  const [todaysClasses, setTodaysClasses] = useState([]);
+  const [upcomingTests, setUpcomingTests] = useState([]);
+  const [loadingClasses, setLoadingClasses] = useState(false);
+  const [loadingTests, setLoadingTests] = useState(false);
 
   const [studentProfile, setStudentProfile] = useState({});
 
@@ -123,8 +109,40 @@ export default function Dashboard() {
       }
     }
 
+    async function fetchTodaysClasses(studentId) {
+      setLoadingClasses(true);
+      try {
+        const response = await axios.get(
+          `${BACKEND_URL}/v1/student/dashboard/todays_classes/${studentId}`
+        );
+        setTodaysClasses(response.data || []);
+      } catch (error) {
+        console.error("Error fetching today's classes:", error);
+        setTodaysClasses([]);
+      } finally {
+        setLoadingClasses(false);
+      }
+    }
+
+    async function fetchUpcomingTests(studentId) {
+      setLoadingTests(true);
+      try {
+        const response = await axios.get(
+          `${BACKEND_URL}/v1/student/dashboard/upcoming_tests/${studentId}`
+        );
+        setUpcomingTests(response.data || []);
+      } catch (error) {
+        console.error("Error fetching upcoming tests:", error);
+        setUpcomingTests([]);
+      } finally {
+        setLoadingTests(false);
+      }
+    }
+
     if (studentProfile && studentProfile?.id) {
       fetchStudentInfo(studentProfile?.id);
+      fetchTodaysClasses(studentProfile?.id);
+      fetchUpcomingTests(studentProfile?.id);
     }
   }, [studentProfile]);
 
@@ -134,36 +152,35 @@ export default function Dashboard() {
   }, [studentInfo]);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 text-slate-900">
       {/* Header */}
-      <div className="flex justify-between items-center p-4 bg-white shadow-sm">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 sm:p-6 bg-white shadow-sm border-b border-slate-200">
+        <div className="flex items-center gap-4 mb-4 sm:mb-0">
           <Link
             to="/"
-            className="flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors"
+            className="flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors duration-200"
           >
             <ArrowLeft size={20} />
             <span className="text-sm font-medium">Return to Home</span>
           </Link>
-          <div className="text-xl font-bold">
+          <div className="text-xl sm:text-2xl font-bold text-slate-800">
             Good Morning, {studentProfile?.last_name || "Student"}
           </div>
         </div>
         <div className="flex items-center gap-4">
-          
           {studentProfile?.profile_image ? (
             <img
               src={studentProfile.profile_image}
               alt="Profile"
-              className="w-10 h-10 rounded-full object-cover border border-slate-300 cursor-pointer 
-                hover:border-slate-400 hover:shadow-lg hover:scale-110 transform transition-all duration-300"
+              className="w-10 h-10 rounded-full object-cover border-2 border-slate-300 cursor-pointer 
+                hover:border-blue-400 hover:shadow-lg hover:scale-110 transform transition-all duration-300"
               onClick={() => navigate("/settingspage")}
             />
           ) : (
             <UserCircle 
-              className="text-slate-500 cursor-pointer hover:text-slate-700 
+              className="text-slate-500 cursor-pointer hover:text-blue-600 
                 hover:scale-110 transform transition-all duration-300" 
-              size={28}
+              size={32}
               onClick={() => navigate("/settingspage")}
             />
           )}
@@ -171,172 +188,266 @@ export default function Dashboard() {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="bg-white border-b border-slate-200 px-4">
-        <div className="flex space-x-8 overflow-x-auto">
-          <button className="flex items-center gap-2 px-3 py-4 text-slate-600 border-b-2 border-slate-600 font-medium
-            hover:bg-slate-50 transition-all duration-300">
+      <div className="bg-white border-b border-slate-200 px-4 sm:px-6">
+        <div className="flex space-x-2 sm:space-x-8 overflow-x-auto">
+          <button className="flex items-center gap-2 px-3 py-4 text-slate-600 border-b-2 border-blue-600 font-medium
+            hover:bg-slate-50 transition-all duration-300 whitespace-nowrap">
             <Home size={16} />
-            Dashboard
+            <span className="hidden sm:inline">Dashboard</span>
           </button>
           <button
             onClick={() => navigate("/enroll-course")}
             className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 
-              hover:bg-slate-50 hover:scale-105 transform transition-all duration-300"
+              hover:bg-slate-50 hover:scale-105 transform transition-all duration-300 whitespace-nowrap"
           >
             <Plus size={16} />
-            Enroll in New Course
+            <span className="hidden sm:inline">Enroll</span>
           </button>
           <button
             onClick={() => navigate("/my-courses")}
             className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 
-              hover:bg-slate-50 hover:scale-105 transform transition-all duration-300"
+              hover:bg-slate-50 hover:scale-105 transform transition-all duration-300 whitespace-nowrap"
           >
             <BookOpen size={16} />
-            My Courses
+            <span className="hidden sm:inline">Courses</span>
           </button>
           <button
             onClick={() => navigate("/resource-hub")}
             className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 
-              hover:bg-slate-50 hover:scale-105 transform transition-all duration-300"
+              hover:bg-slate-50 hover:scale-105 transform transition-all duration-300 whitespace-nowrap"
           >
             <Package size={16} />
-            Resource Hub
+            <span className="hidden sm:inline">Resources</span>
           </button>
           <button 
             onClick={() => navigate("/student-notice")}
             className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 
-              hover:bg-slate-50 hover:scale-105 transform transition-all duration-300"
+              hover:bg-slate-50 hover:scale-105 transform transition-all duration-300 whitespace-nowrap"
           >
             <Bell size={16} />
-            Notice Board
+            <span className="hidden sm:inline">Notice</span>
           </button>
           <button 
             onClick={() => navigate("/finance")}
             className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 
-              hover:bg-slate-50 hover:scale-105 transform transition-all duration-300"
+              hover:bg-slate-50 hover:scale-105 transform transition-all duration-300 whitespace-nowrap"
           >
             <ClipboardList size={16} />
-            Finance
+            <span className="hidden sm:inline">Finance</span>
           </button>
           <button 
             onClick={() => navigate("/settingspage")}
             className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 
-              hover:bg-slate-50 hover:scale-105 transform transition-all duration-300">
+              hover:bg-slate-50 hover:scale-105 transform transition-all duration-300 whitespace-nowrap">
             <Settings size={16} />
-            Settings
+            <span className="hidden sm:inline">Settings</span>
           </button>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-4 p-4">
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 text-slate-800
-          hover:bg-slate-200 hover:shadow transition-all duration-300 cursor-pointer">
-          <BookOpen />
-          <span>Classes</span>
-          <span className="text-sm font-bold">
-            {studentInfo.num_classes_today}
-          </span>
+      {/* Stats Cards */}
+      <div className="flex flex-col sm:flex-row gap-4 p-4 sm:p-6">
+        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 text-slate-800
+          hover:from-blue-100 hover:to-indigo-100 hover:shadow-lg transition-all duration-300 cursor-pointer border border-blue-100">
+          <div className="p-2 bg-blue-500 rounded-lg">
+            <BookOpen className="text-white" size={20} />
+          </div>
+          <div>
+            <span className="text-sm text-slate-600">Today's Classes</span>
+            <div className="text-xl font-bold text-blue-600">
+              {studentInfo.num_classes_today}
+            </div>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-gray-100 text-gray-800
-          hover:bg-gray-200 hover:shadow transition-all duration-300 cursor-pointer">
-          <ClipboardCheck />
-          <span>Assignments</span>
-          <span className="text-sm font-bold">
-            {studentInfo.num_assignments_remaining_today}
-          </span>
+        <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 text-slate-800
+          hover:from-amber-100 hover:to-orange-100 hover:shadow-lg transition-all duration-300 cursor-pointer border border-amber-100">
+          <div className="p-2 bg-amber-500 rounded-lg">
+            <ClipboardCheck className="text-white" size={20} />
+          </div>
+          <div>
+            <span className="text-sm text-slate-600">Assignments Due</span>
+            <div className="text-xl font-bold text-amber-600">
+              {studentInfo.num_assignments_remaining_today}
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="grid grid-cols-12 gap-4 p-4">
-        {/* Left Panel - Notices */}
-        <div className="col-span-3 bg-white rounded-xl p-4 shadow">
-          <h2 className="font-semibold mb-4">Notices</h2>
-          {notices.map((item, idx) => (
-            <div key={idx} className="mb-2">
-              <div className="text-xs text-slate-400">{item.date}</div>
-              <div>{item.text}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* Middle Panel - Schedule */}
-        <div className="col-span-6 bg-white rounded-xl p-4 shadow">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="font-semibold">Today's Schedule</h2>
-            <div className="flex gap-2">
-              <ChevronLeft className="cursor-pointer" />
-              <ChevronRight className="cursor-pointer" />
-            </div>
-          </div>
-          <div className="grid grid-cols-3 gap-4">
-            {schedule.map((item, idx) => (
-              <div
-                key={idx}
-                className="flex flex-col items-center bg-slate-100 p-4 rounded-lg"
-              >
-                <img
-                  src={item.image}
-                  alt="task"
-                  className="h-24 object-contain mb-2"
-                />
-                <div className="mb-2 font-medium text-center">{item.label}</div>
-                <button className="text-sm bg-slate-600 text-white px-3 py-1 rounded hover:bg-slate-700">
-                  Mark Completed
-                </button>
+      {/* Main Content */}
+      <div className="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Today's Classes Section */}
+        <div className="lg:col-span-2">
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Calendar className="text-blue-600" size={20} />
               </div>
-            ))}
+              <h2 className="text-xl font-bold text-slate-800">Today's Classes</h2>
+              {loadingClasses && (
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+              )}
+            </div>
+
+            {loadingClasses ? (
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="animate-pulse">
+                    <div className="h-20 bg-slate-200 rounded-lg"></div>
+                  </div>
+                ))}
+              </div>
+            ) : todaysClasses.length === 0 ? (
+              <div className="text-center py-12">
+                <Calendar className="mx-auto text-slate-400 mb-4" size={48} />
+                <h3 className="text-lg font-medium text-slate-600 mb-2">No Classes Today</h3>
+                <p className="text-slate-500">Enjoy your free day! Check back tomorrow for your schedule.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {todaysClasses.map((classItem, index) => (
+                  <div key={index} className="flex items-center gap-4 p-4 rounded-lg border border-slate-200 
+                    hover:border-blue-300 hover:shadow-md transition-all duration-300 bg-gradient-to-r from-slate-50 to-white">
+                    <div className="flex-shrink-0">
+                      <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <BookOpen className="text-blue-600" size={20} />
+                      </div>
+                    </div>
+                    <div className="flex-grow">
+                      <h3 className="font-semibold text-slate-800">{classItem.course_name || 'Course Name'}</h3>
+                      <p className="text-sm text-slate-600">{classItem.instructor || 'Instructor'}</p>
+                      <div className="flex items-center gap-4 mt-2 text-sm text-slate-500">
+                        <span className="flex items-center gap-1">
+                          <Clock size={14} />
+                          {classItem.time || 'Time'}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <MapPin size={14} />
+                          {classItem.room || 'Room'}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex-shrink-0">
+                      <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                        {classItem.type || 'Lecture'}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Quick Actions */}
+          <div className="mt-6 grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <button 
+              onClick={() => navigate("/my-courses")}
+              className="flex flex-col items-center gap-2 p-4 bg-white rounded-xl border border-slate-200 
+                hover:border-blue-300 hover:shadow-md hover:scale-105 transition-all duration-300"
+            >
+              <BookOpen className="text-blue-600" size={24} />
+              <span className="text-sm font-medium text-slate-700">My Courses</span>
+            </button>
+            <button 
+              onClick={() => navigate("/resource-hub")}
+              className="flex flex-col items-center gap-2 p-4 bg-white rounded-xl border border-slate-200 
+                hover:border-green-300 hover:shadow-md hover:scale-105 transition-all duration-300"
+            >
+              <Package className="text-green-600" size={24} />
+              <span className="text-sm font-medium text-slate-700">Resources</span>
+            </button>
+            <button 
+              onClick={() => navigate("/student-notice")}
+              className="flex flex-col items-center gap-2 p-4 bg-white rounded-xl border border-slate-200 
+                hover:border-yellow-300 hover:shadow-md hover:scale-105 transition-all duration-300"
+            >
+              <Bell className="text-yellow-600" size={24} />
+              <span className="text-sm font-medium text-slate-700">Notices</span>
+            </button>
+            <button 
+              onClick={() => navigate("/finance")}
+              className="flex flex-col items-center gap-2 p-4 bg-white rounded-xl border border-slate-200 
+                hover:border-purple-300 hover:shadow-md hover:scale-105 transition-all duration-300"
+            >
+              <ClipboardList className="text-purple-600" size={24} />
+              <span className="text-sm font-medium text-slate-700">Finance</span>
+            </button>
           </div>
         </div>
 
-        {/* Right Panel */}
-        <div className="col-span-3 flex flex-col gap-4">
+        {/* Sidebar - Upcoming Tests & Other Info */}
+        <div className="space-y-6">
           {/* Upcoming Tests */}
-          <div className="bg-white rounded-xl p-4 shadow">
-            <h2 className="font-semibold mb-2">Upcoming Tests This Semester</h2>
-            {tests.map((test, idx) => (
-              <div key={idx} className="mb-2">
-                <div className="font-medium">{test.subject}</div>
-                <div className="text-xs text-slate-400">{test.date}</div>
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-red-100 rounded-lg">
+                <ClipboardCheck className="text-red-600" size={20} />
               </div>
-            ))}
-          </div>
+              <h3 className="text-lg font-bold text-slate-800">Upcoming Tests</h3>
+              {loadingTests && (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+              )}
+            </div>
 
-          {/* Missing Classes Chart */}
-          <div className="bg-white rounded-xl p-4 shadow">
-            <h2 className="font-semibold mb-2">
-              Missing Classes This Semester
-            </h2>
-            <div className="h-40">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData}>
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Bar dataKey="missed" fill="#f87171" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="text-sm text-green-600 mt-1">
-              +4% since last month
-            </div>
-          </div>
+            {loadingTests ? (
+              <div className="space-y-3">
+                {[1, 2].map((i) => (
+                  <div key={i} className="animate-pulse">
+                    <div className="h-16 bg-slate-200 rounded-lg"></div>
+                  </div>
+                ))}
+              </div>
+            ) : upcomingTests.length === 0 ? (
+              <div className="text-center py-8">
+                <ClipboardCheck className="mx-auto text-slate-400 mb-3" size={32} />
+                <p className="text-slate-500 text-sm">No upcoming tests</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {upcomingTests.slice(0, 5).map((test, index) => (
+                  <div key={test.id || index} className="p-4 rounded-lg border border-slate-200 hover:border-red-300 
+                    hover:shadow-sm transition-all duration-300 bg-gradient-to-r from-red-50 to-white">
+                    <div className="flex items-start justify-between mb-2">
+                      <h4 className="font-semibold text-slate-800 text-sm">{test.name || 'Test Subject'}</h4>
+                      <span className="px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-medium">
+                        {test.type || 'Exam'}
+                      </span>
+                    </div>
+                    
+                    <div className="space-y-1 text-xs text-slate-600">
+                      <div className="flex items-center gap-1">
+                        <Calendar size={12} />
+                        <span>{test.date ? new Date(test.date).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric'
+                        }) : 'Date TBD'}</span>
+                        <span className="ml-2">
+                          {test.date ? new Date(test.date).toLocaleTimeString('en-US', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          }) : ''}
+                        </span>
+                      </div>
+                      
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-1">
+                          <MapPin size={12} />
+                          <span>Room {test.room || 'TBD'}</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Clock size={12} />
+                          <span>{test.duration ? `${test.duration} mins` : 'Duration TBD'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>          
         </div>
       </div>
-
-      {/* Footer Icons */}
-      {/* <div className="fixed bottom-0 left-0 right-0 bg-white shadow-md p-2 flex justify-around">
-        <MapPin />
-        <Plus />
-        <Square />
-        <Camera />
-        <Text />
-        <Plus className="bg-slate-600 text-white p-1 rounded-full" />
-        <Settings />
-        <Code2 />
-      </div> */}
     </div>
   );
 }
