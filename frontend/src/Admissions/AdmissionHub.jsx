@@ -1,215 +1,428 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import Navbar from "../components/Navbar";
 
 function AdmissionHub() {
-  const [searchTerm, setSearchTerm] = useState('');
-  
-  // Sample program data - this could come from an API in a real application
-  const programs = [
-    {
-      id: 1,
-      title: "Bachelor of Science in Computer Science",
-      level: "Bachelor",
-      description: "A comprehensive program covering software development, algorithms, and data structures.",
-      image: "/images/computer-science-bs.jpg",
-    },
-    {
-      id: 2,
-      title: "Masters of Science in Computer Science and Engineering",
-      level: "Masters",
-      description: "An in-depth study of literary works, critical theory, and creative writing.",
-      image: "/images/computer-science-ms.jpg",
-    },
-    {
-      id: 3,
-      title: "Doctor of Philosophy in Physics",
-      level: "Doctorate",
-      description: "Advanced research in theoretical and experimental physics.",
-      image: "/images/physics-phd.jpg",
-    },
-    {
-      id: 4,
-      title: "Bachelor of Arts in History",
-      level: "Bachelor",
-      description: "A broad exploration of historical events, methodologies, and interpretations.",
-      image: "/images/history-ba.jpg",
-    },
-    {
-      id: 5,
-      title: "Master of Science in Biology",
-      level: "Masters",
-      description: "Research-focused program in various biological disciplines.",
-      image: "/images/biology-ms.jpg",
-    },
-    {
-      id: 6,
-      title: "Doctor of Education in Leadership",
-      level: "Doctorate",
-      description: "A program focused on educational leadership and policy.",
-      image: "/images/education-leadership-edd.jpg",
-    },
-  ];
+    const [searchTerm, setSearchTerm] = useState("");
+    const [activeFilter, setActiveFilter] = useState("All");
+    const [currentPage, setCurrentPage] = useState(1);
+    const programsPerPage = 6;
 
-  // Filter programs based on search
-  const filteredPrograms = programs.filter(program => 
-    program.title.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+    // Updated program data with more programs and relevant descriptions
+    const programs = [
+        {
+            id: 1,
+            title: "Bachelor of Science in Computer Science",
+            level: "Bachelor",
+            description:
+                "A comprehensive program covering software development, algorithms, data structures, and fundamental computing principles for future tech innovators.",
+            image: "/images/computer-science-bs.jpg",
+            imageUrl:
+                "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
+        },
+        {
+            id: 2,
+            title: "Masters of Science in Computer Science and Engineering",
+            level: "Masters",
+            description:
+                "An advanced program focusing on cutting-edge research areas including distributed systems, machine learning, and high-performance computing for specialized tech careers.",
+            image: "/images/computer-science-ms.jpg",
+            imageUrl:
+                "https://images.unsplash.com/photo-1610563166150-b34df4f3bcd6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1476&q=80",
+        },
+        {
+            id: 3,
+            title: "Professional Masters in Cybersecurity",
+            level: "Masters",
+            description:
+                "Develop expertise in network security, ethical hacking, cryptography, and security governance to protect organizations from evolving cyber threats.",
+            image: "/images/cybersecurity-ms.jpg",
+            imageUrl:
+                "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80",
+        },
+        {
+            id: 4,
+            title: "PhD in Computer Science and Engineering",
+            level: "Doctorate",
+            description:
+                "A research-intensive program for scholars pursuing groundbreaking innovations in areas such as artificial intelligence, quantum computing, and computational theory.",
+            image: "/images/computer-science-phd.jpg",
+            imageUrl:
+                "https://images.unsplash.com/photo-1620825937374-87fc7d6bddc2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1451&q=80",
+        },
+        {
+            id: 5,
+            title: "Bachelor of Science in Data Science",
+            level: "Bachelor",
+            description:
+                "Prepare for the data-driven world with courses in statistical analysis, machine learning, data visualization, and big data processing technologies.",
+            image: "/images/data-science-bs.jpg",
+            imageUrl:
+                "https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
+        },
+        {
+            id: 6,
+            title: "Master of Science in Artificial Intelligence",
+            level: "Masters",
+            description:
+                "Explore the frontier of AI with specialized training in deep learning, natural language processing, computer vision, and robotics applications.",
+            image: "/images/ai-ms.jpg",
+            imageUrl:
+                "https://images.unsplash.com/photo-1677442135132-198ca30c7285?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1632&q=80",
+        },
+        {
+            id: 7,
+            title: "Bachelor of Engineering in Robotics",
+            level: "Bachelor",
+            description:
+                "Blend mechanical engineering, electronics, and computer science to design and build the next generation of autonomous systems and intelligent machines.",
+            image: "/images/robotics-be.jpg",
+            imageUrl:
+                "https://images.unsplash.com/photo-1561557944-6c7202a042b0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80",
+        },
+        {
+            id: 8,
+            title: "Doctor of Philosophy in Biotechnology",
+            level: "Doctorate",
+            description:
+                "Conduct pioneering research at the intersection of biology and technology, developing innovations in genomics, pharmaceuticals, and medical devices.",
+            image: "/images/biotechnology-phd.jpg",
+            imageUrl:
+                "https://images.unsplash.com/photo-1532187863486-abf9dbad1b69?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
+        },
+        {
+            id: 9,
+            title: "Masters in Information Technology Management",
+            level: "Masters",
+            description:
+                "Bridge the gap between technology and business with specialized training in IT strategy, project management, and digital transformation leadership.",
+            image: "/images/it-management-ms.jpg",
+            imageUrl:
+                "https://images.unsplash.com/photo-1531538606174-0f90ff5dce83?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1374&q=80",
+        },
+        {
+            id: 10,
+            title: "Bachelor of Arts in Digital Media",
+            level: "Bachelor",
+            description:
+                "Combine creative arts with digital technology to develop skills in multimedia production, web design, animation, and interactive storytelling.",
+            image: "/images/digital-media-ba.jpg",
+            imageUrl:
+                "https://images.unsplash.com/photo-1626785774573-4b799315345d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1471&q=80",
+        },
+        {
+            id: 11,
+            title: "Doctor of Science in Quantum Computing",
+            level: "Doctorate",
+            description:
+                "Push the boundaries of computing with advanced research in quantum algorithms, quantum error correction, and applications in cryptography and optimization.",
+            image: "/images/quantum-computing-phd.jpg",
+            imageUrl:
+                "https://images.unsplash.com/photo-1635070041078-e363dbe005cb?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1470&q=80",
+        },
+        {
+            id: 12,
+            title: "Master of Engineering in Blockchain Technology",
+            level: "Masters",
+            description:
+                "Develop expertise in distributed ledger technologies, smart contracts, cryptocurrency systems, and secure applications for various industries.",
+            image: "/images/blockchain-me.jpg",
+            imageUrl:
+                "https://images.unsplash.com/photo-1639762681057-408e52192e55?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1432&q=80",
+        },
+    ];
 
-  return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
-      <div className="w-64 bg-white shadow-md">
-        <div className="p-6">
-          <h2 className="text-xl font-semibold text-gray-800">Academics Admin</h2>
-        </div>
-        <nav className="mt-6">
-          <Link to="/dashboard" className="flex items-center px-6 py-3 hover:bg-gray-100">
-            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-            </svg>
-            Dashboard
-          </Link>
-          <Link to="/programs" className="flex items-center px-6 py-3 bg-red-50 text-red-500">
-            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-            </svg>
-            Programs
-          </Link>
-          <Link to="/courses" className="flex items-center px-6 py-3 hover:bg-gray-100">
-            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
-            </svg>
-            Courses
-          </Link>
-          <Link to="/students" className="flex items-center px-6 py-3 hover:bg-gray-100">
-            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-            </svg>
-            Students
-          </Link>
-          <Link to="/faculty" className="flex items-center px-6 py-3 hover:bg-gray-100">
-            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
-            </svg>
-            Faculty
-          </Link>
-        </nav>
-        <div className="mt-auto p-6">
-          <Link to="/help" className="flex items-center px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">
-            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            Help and Support
-          </Link>
-          <Link to="/settings" className="flex items-center mt-2 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded">
-            <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-            </svg>
-            Settings
-          </Link>
-        </div>
-      </div>
+    // Filter programs based on search and selected filter
+    const filteredPrograms = programs.filter(
+        (program) =>
+            program.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
+            (activeFilter === "All" || program.level === activeFilter)
+    );
 
-      {/* Main content */}
-      <div className="flex-1 p-8">
-        <h1 className="text-3xl font-bold text-gray-800 mb-1">Programs</h1>
-        <p className="text-gray-600 mb-6">Manage academic programs, including curriculum, faculty, and student enrollment.</p>
-        
-        {/* Add Apply Now button */}
-        <div className="mb-6 flex justify-between items-center">
-          <Link 
-            to="/apply" 
-            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-          >
-            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-            </svg>
-            Apply Now
-          </Link>
-          
-          {/* Search bar - moved into this container */}
-          <div className="w-1/2">
-            <div className="relative rounded-md shadow-sm">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-              </div>
-              <input
-                type="text"
-                placeholder="Search programs"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              />
-            </div>
-          </div>
-        </div>
+    // Calculate pagination
+    const indexOfLastProgram = currentPage * programsPerPage;
+    const indexOfFirstProgram = indexOfLastProgram - programsPerPage;
+    const currentPrograms = filteredPrograms.slice(
+        indexOfFirstProgram,
+        indexOfLastProgram
+    );
+    const totalPages = Math.ceil(filteredPrograms.length / programsPerPage);
 
-        {/* Filters and View Details button */}
-        <div className="flex justify-between mb-6">
-          <div>
-            <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-              Program Level
-              <svg className="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
-            </button>
-          </div>
-          <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-            View Details
-          </button>
-        </div>
+    // Handle page change
+    const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
-        {/* Program cards grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredPrograms.map(program => (
-            <div key={program.id} className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="h-48 bg-gray-200 relative">
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-700 text-white text-lg font-bold">
-                  {program.title.split(' ').slice(0, 2).join(' ')}
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-slate-100 to-gray-200">
+            {/* Hero header with Return Home button */}
+            <Navbar />
+            <div className="bg-gradient-to-r from-slate-700 via-gray-800 to-slate-700 text-white py-12 px-8 shadow-lg relative">
+                <div className="max-w-7xl mx-auto">
+                    <h1 className="text-4xl font-extrabold tracking-tight mb-2">
+                        Academic Programs
+                    </h1>
+                    <p className="text-gray-300 text-xl max-w-3xl">
+                        Discover your path to success with our diverse range of
+                        academic programs designed to empower your future.
+                    </p>
                 </div>
-              </div>
-              <div className="px-4 py-5">
-                <h3 className="text-lg font-medium text-gray-900">{program.title}</h3>
-                <p className="mt-2 text-sm text-gray-600">{program.description}</p>
-                <div className="mt-4">
-                  <Link 
-                    to={`/program/${program.id}`} 
-                    className="text-sm font-medium text-blue-600 hover:text-blue-500"
-                  >
-                    View Details
-                  </Link>
-                </div>
-              </div>
             </div>
-          ))}
-        </div>
 
-        {/* Pagination */}
-        <div className="flex justify-center mt-8">
-          <nav className="flex items-center">
-            <button className="px-2 py-1 mx-1 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
-              </svg>
-            </button>
-            <button className="px-3 py-1 mx-1 bg-blue-600 text-white rounded-md">1</button>
-            <button className="px-3 py-1 mx-1 hover:bg-gray-200 rounded-md">2</button>
-            <button className="px-3 py-1 mx-1 hover:bg-gray-200 rounded-md">3</button>
-            <button className="px-3 py-1 mx-1 hover:bg-gray-200 rounded-md">4</button>
-            <button className="px-3 py-1 mx-1 hover:bg-gray-200 rounded-md">5</button>
-            <button className="px-2 py-1 mx-1 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
-              </svg>
-            </button>
-          </nav>
+            {/* Main content */}
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                {/* Action buttons and search */}
+                <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-6 mb-10">
+                    <div className="flex flex-wrap gap-4">
+                        <Link
+                            to="/apply"
+                            className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-lg shadow-md text-white bg-slate-700 hover:bg-slate-800 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500"
+                        >
+                            <svg
+                                className="w-5 h-5 mr-2"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                                ></path>
+                            </svg>
+                            Apply Now
+                        </Link>
+                    </div>
+
+                    {/* Search bar */}
+                    <div className="w-full md:w-96">
+                        <div className="relative">
+                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg
+                                    className="h-5 w-5 text-gray-400"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                                    ></path>
+                                </svg>
+                            </div>
+                            <input
+                                type="text"
+                                placeholder="Search programs..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition duration-150 ease-in-out shadow-sm"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Filters */}
+                <div className="flex flex-wrap gap-2 mb-8">
+                    {["All", "Bachelor", "Masters", "Doctorate"].map(
+                        (filter) => (
+                            <button
+                                key={filter}
+                                onClick={() => {
+                                    setActiveFilter(filter);
+                                    setCurrentPage(1);
+                                }}
+                                className={`px-4 py-2 rounded-full text-sm font-medium transition-colors duration-200 ${
+                                    activeFilter === filter
+                                        ? "bg-slate-700 text-white shadow-md"
+                                        : "bg-white text-gray-700 hover:bg-gray-100 border border-gray-300"
+                                }`}
+                            >
+                                {filter}
+                            </button>
+                        )
+                    )}
+                </div>
+
+                {/* Program cards grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {currentPrograms.length > 0 ? (
+                        currentPrograms.map((program) => (
+                            <div
+                                key={program.id}
+                                className="bg-white rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-100"
+                            >
+                                <div className="h-48 relative overflow-hidden">
+                                    <img
+                                        src={program.imageUrl}
+                                        alt={program.title}
+                                        className="w-full h-full object-cover transform hover:scale-105 transition-transform duration-500"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end">
+                                        <h3 className="text-white text-xl font-bold p-4 drop-shadow-lg">
+                                            {program.title}
+                                        </h3>
+                                    </div>
+                                    <div className="absolute top-4 right-4">
+                                        <span
+                                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+                                                program.level === "Bachelor"
+                                                    ? "bg-slate-100 text-slate-800"
+                                                    : program.level ===
+                                                      "Masters"
+                                                    ? "bg-gray-100 text-gray-800"
+                                                    : "bg-slate-100 text-slate-800"
+                                            }`}
+                                        >
+                                            {program.level}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="p-6">
+                                    <p className="text-gray-600 mb-4 line-clamp-3">
+                                        {program.description}
+                                    </p>
+                                    <div className="flex justify-between items-center">
+                                        <Link
+                                            to={`/program/${program.id}`}
+                                            className="inline-flex items-center text-slate-700 hover:text-slate-900 font-medium"
+                                        >
+                                            View Details
+                                            <svg
+                                                className="ml-1 w-5 h-5"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                                xmlns="http://www.w3.org/2000/svg"
+                                            >
+                                                <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth="2"
+                                                    d="M9 5l7 7-7 7"
+                                                ></path>
+                                            </svg>
+                                        </Link>
+                                        <Link
+                                            to={"/apply"}
+                                            className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-white bg-slate-700 hover:bg-slate-800"
+                                        >
+                                            Apply
+                                        </Link>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    ) : (
+                        <div className="col-span-full py-12 text-center">
+                            <svg
+                                className="mx-auto h-12 w-12 text-gray-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                ></path>
+                            </svg>
+                            <h3 className="mt-2 text-lg font-medium text-gray-900">
+                                No programs found
+                            </h3>
+                            <p className="mt-1 text-gray-500">
+                                Try adjusting your search or filter to find what
+                                you're looking for.
+                            </p>
+                        </div>
+                    )}
+                </div>
+
+                {/* Pagination - Updated for functional pagination */}
+                {filteredPrograms.length > 0 && (
+                    <div className="flex justify-center mt-12">
+                        <nav className="flex items-center bg-white px-2 py-1 rounded-lg shadow-sm">
+                            <button
+                                onClick={() =>
+                                    paginate(Math.max(1, currentPage - 1))
+                                }
+                                disabled={currentPage === 1}
+                                className={`p-2 mx-1 rounded-md ${
+                                    currentPage === 1
+                                        ? "text-gray-300 cursor-not-allowed"
+                                        : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                                } focus:outline-none focus:ring-2 focus:ring-slate-600`}
+                            >
+                                <svg
+                                    className="w-5 h-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M15 19l-7-7 7-7"
+                                    ></path>
+                                </svg>
+                            </button>
+
+                            {Array.from({ length: totalPages }).map(
+                                (_, index) => (
+                                    <button
+                                        key={index + 1}
+                                        onClick={() => paginate(index + 1)}
+                                        className={`px-4 py-2 mx-1 ${
+                                            currentPage === index + 1
+                                                ? "bg-slate-700 text-white"
+                                                : "hover:bg-gray-100 text-gray-700"
+                                        } rounded-md font-medium`}
+                                    >
+                                        {index + 1}
+                                    </button>
+                                )
+                            )}
+
+                            <button
+                                onClick={() =>
+                                    paginate(
+                                        Math.min(totalPages, currentPage + 1)
+                                    )
+                                }
+                                disabled={currentPage === totalPages}
+                                className={`p-2 mx-1 rounded-md ${
+                                    currentPage === totalPages
+                                        ? "text-gray-300 cursor-not-allowed"
+                                        : "text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+                                } focus:outline-none focus:ring-2 focus:ring-slate-600`}
+                            >
+                                <svg
+                                    className="w-5 h-5"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M9 5l7 7-7 7"
+                                    ></path>
+                                </svg>
+                            </button>
+                        </nav>
+                    </div>
+                )}
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 }
 
 export default AdmissionHub;
