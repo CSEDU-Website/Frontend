@@ -1,25 +1,24 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const CreateNewCourse = () => {
-  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+  const { user } = useContext(AuthContext);
   const [teacherProfile, setTeacherProfile] = useState({});
   const [loading, setLoading] = useState(false);
 
+  // Authentication check
   useEffect(() => {
-    const storedUser =
-      JSON.parse(localStorage.getItem("user")) ||
-      JSON.parse(sessionStorage.getItem("user"));
-
-    console.log("stored user: ");
-    console.log(storedUser);
-
-    if (storedUser?.isAuthenticated && !user) {
-      setUser(storedUser);
+    if (!user?.isAuthenticated) {
+      navigate("/login");
+      return;
     }
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     const fetchTeacherProfile = async (userId) => {

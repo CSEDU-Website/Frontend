@@ -17,6 +17,10 @@ import {
   ArrowLeft
 } from 'lucide-react';
 
+
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 console.log('BACKEND_URL:', BACKEND_URL);
@@ -39,18 +43,10 @@ const ResourceHub = () => {
   const [showOrderModal, setShowOrderModal] = useState(false);
 
   // Get current user - with better error handling
-  let user = {};
-  let studentId = 1; // Default fallback
+  const { user } = useContext(AuthContext);
+  let studentId = user?.id; // Default fallback
   
-  try {
-    const userStr = localStorage.getItem('user') || sessionStorage.getItem('user');
-    if (userStr) {
-      user = JSON.parse(userStr);
-      studentId = user.studentProfile?.id || user.id || 1;
-    }
-  } catch (error) {
-    console.error('Error parsing user data:', error);
-  }
+  
 
   useEffect(() => {
     const fetchMyOrdersInternal = async () => {

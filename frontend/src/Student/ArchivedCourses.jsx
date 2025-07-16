@@ -2,9 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Search, UserCircle, Archive, MoreVertical } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+
+
 const ArchivedCourses = () => {
   const navigate = useNavigate();
-  const [ setUser] = useState(null);
+  const { user } = useContext(AuthContext);
   const [archivedCourses, setArchivedCourses] = useState([]);
   const [activeDropdown, setActiveDropdown] = useState(null);
 
@@ -23,15 +27,12 @@ const ArchivedCourses = () => {
   ];
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user")) || JSON.parse(sessionStorage.getItem("user"));
     
-    if (!storedUser?.isAuthenticated) {
+    if (!user?.isAuthenticated) {
       navigate('/login');
       return;
     }
     
-    setUser(storedUser);
-    setArchivedCourses(mockArchivedCourses);
   }, [navigate]);
 
   const handleUnarchive = (courseId) => {

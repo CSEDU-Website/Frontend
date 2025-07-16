@@ -14,6 +14,9 @@ import {
 import AdminPaymentVerification from './AdminPaymentVerification';
 import { financeApi } from '../api';
 
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function AdminFinance() {
@@ -37,7 +40,7 @@ export default function AdminFinance() {
   const [filteredEvents, setFilteredEvents] = useState([]);
 
   // Get current user
-  const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+  const { user } = useContext(AuthContext);
   const isAdmin = user.role === 'admin';
 
   useEffect(() => {
@@ -149,6 +152,7 @@ export default function AdminFinance() {
       setError('');
     } catch (err) {
       setError('Failed to delete finance event');
+      console.log(err)
     }
   };
 

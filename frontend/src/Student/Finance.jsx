@@ -17,6 +17,10 @@ import React from "react";
 import MockPaymentGateway from '../components/MockPaymentGateway';
 import { financeApi } from '../api';
 
+
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const getStatusColor = (status) => {
@@ -56,10 +60,7 @@ export default function Finance() {
     const [successMessage, setSuccessMessage] = useState("");
 
     // Get user from localStorage/sessionStorage
-    let user = {};
-    try {
-        user = JSON.parse(localStorage.getItem("user")) || JSON.parse(sessionStorage.getItem("user"));
-    } catch (e) { }
+    const { user } = useContext(AuthContext);
     const userId = user?.id;
 
     // Fetch finance data from backend (using only Sami/api/financeApi.py endpoints)

@@ -38,13 +38,16 @@ import {
 
 import axios from "axios";
 
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const { user } = useContext(AuthContext);
+  
   const [studentInfo, setStudentInfo] = useState({
     num_classes_today: 0,
     num_assignments_remaining_today: 0,
@@ -60,19 +63,11 @@ export default function Dashboard() {
 
   // Add redirect protection - ensure user is authenticated
   useEffect(() => {
-    const storedUser =
-      JSON.parse(localStorage.getItem("user")) ||
-      JSON.parse(sessionStorage.getItem("user"));
-
-    if (!storedUser?.isAuthenticated) {
-      navigate("/login");
-      return;
+    if(!user?.isAuthenticated){
+      navigate("/");
     }
-
-    if (storedUser?.isAuthenticated && !user) {
-      setUser(storedUser);
-    }
-  }, [navigate, user]);
+    
+  }, []);
 
   useEffect(() => {
     const fetchStudent = async (userId) => {

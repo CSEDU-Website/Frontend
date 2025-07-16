@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { Calendar, Clock, Users, Plus, X, Trash2, ExternalLink, UserCheck } from 'lucide-react'
 
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL
 
 function AdminMeeting() {
@@ -20,17 +23,12 @@ function AdminMeeting() {
     created_by: null
   })
 
-  // Get current user from storage
-  const getCurrentUser = () => {
-    return JSON.parse(localStorage.getItem('user')) || 
-           JSON.parse(sessionStorage.getItem('user'))
-  }
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     const loadData = async () => {
       await fetchUpcomingMeetings()
-      const user = getCurrentUser()
-      if (user) {
+      if (user && user?.id) {
         setFormData(prev => ({ ...prev, created_by: user.id }))
       }
     }
@@ -106,8 +104,7 @@ function AdminMeeting() {
     }
 
     try {
-      const user = getCurrentUser()
-      await axios.delete(`${BACKEND_URL}/v1/meetings/delete/${meetingId}?user_id=${user.id}`)
+      await axios.delete(`${BACKEND_URL}/v1/meetings/delete/${meetingId}?user_id=${user?.id}`)
       
       setSuccess('Meeting deleted successfully!')
       fetchUpcomingMeetings()
