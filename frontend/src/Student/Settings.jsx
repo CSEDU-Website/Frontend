@@ -15,6 +15,9 @@ import {
   Code,
 } from "lucide-react";
 
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+
 import axios from "axios";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -39,24 +42,13 @@ const SettingsPage = () => {
   const [newPass, setNewPass] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
 
-  const [user, setUser] = useState(null);
+  const { user , setUser} = useContext(AuthContext);
   const [studentProfile, setStudentProfile] = useState({});
   const [originalProfile, setOriginalProfile] = useState({});
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const storedUser =
-      JSON.parse(localStorage.getItem("user")) ||
-      JSON.parse(sessionStorage.getItem("user"));
-
-    console.log("stored user: ");
-    console.log(storedUser);
-
-    if (storedUser?.isAuthenticated && !user) {
-      setUser(storedUser);
-    }
-  }, []); // Empty dependency array ensures this runs once on mount
+  
 
   useEffect(() => {
     const fetchStudent = async (userId) => {

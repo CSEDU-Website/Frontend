@@ -17,11 +17,16 @@ import {
     ArrowLeft,
 } from "lucide-react";
 
+
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 console.log("BACKEND_URL:", BACKEND_URL);
 
 const ResourceHub = () => {
+
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("browse");
     const [equipments, setEquipments] = useState([]);
@@ -32,6 +37,7 @@ const ResourceHub = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [filterCategory, setFilterCategory] = useState("all");
 
+
     // Order form state
     const [selectedEquipment, setSelectedEquipment] = useState(null);
     const [orderQuantity, setOrderQuantity] = useState(1);
@@ -39,19 +45,8 @@ const ResourceHub = () => {
     const [showOrderModal, setShowOrderModal] = useState(false);
 
     // Get current user - with better error handling
-    let user = {};
-    let studentId = 1; // Default fallback
-
-    try {
-        const userStr =
-            localStorage.getItem("user") || sessionStorage.getItem("user");
-        if (userStr) {
-            user = JSON.parse(userStr);
-            studentId = user.studentProfile?.id || user.id || 1;
-        }
-    } catch (error) {
-        console.error("Error parsing user data:", error);
-    }
+    const { user } = useContext(AuthContext);
+    let studentId = user?.id; // Default fallback
 
     useEffect(() => {
         const fetchMyOrdersInternal = async () => {

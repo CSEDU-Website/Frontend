@@ -2,11 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const MyCourses = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const { user } = useContext(AuthContext);
   const [studentProfile, setStudentProfile] = useState({});
   const [courses, setCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState(null);
@@ -26,16 +29,10 @@ const MyCourses = () => {
 
   // Authentication check
   useEffect(() => {
-    const storedUser =
-      JSON.parse(localStorage.getItem("user")) ||
-      JSON.parse(sessionStorage.getItem("user"));
-
-    if (!storedUser?.isAuthenticated) {
+    if (!user?.isAuthenticated) {
       navigate("/login");
       return;
     }
-
-    setUser(storedUser);
   }, [navigate]);
 
   // Fetch student profile
@@ -202,7 +199,7 @@ const MyCourses = () => {
       new URL(url);
       return true;
     } catch (error) {
-      console.log(error)
+      console.log(error);
       return false;
     }
   };
@@ -897,9 +894,9 @@ const MyCourses = () => {
                     {assignments.map((assignment) => {
                       const submission = submissions[assignment.id];
                       const overdue =
-                        assignment.due_date && 
-                        assignment.type && 
-                        assignment.type.toLowerCase() !== "resource" && 
+                        assignment.due_date &&
+                        assignment.type &&
+                        assignment.type.toLowerCase() !== "resource" &&
                         isOverdue(assignment.due_date);
 
                       return (
@@ -983,56 +980,64 @@ const MyCourses = () => {
                                     </svg>
                                     Posted: {formatDate(assignment.given_date)}
                                   </div>
-                                  {assignment.due_date && assignment.type && assignment.type.toLowerCase() !== "resource" && (
-                                    <div
-                                      className={`flex items-center rounded-full px-3 py-1.5 shadow-sm ${
-                                        overdue && !submission
-                                          ? "bg-red-100 text-red-700 font-medium"
-                                          : "bg-gray-100 text-gray-700"
-                                      }`}
-                                    >
-                                      <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        className="h-4 w-4 mr-1.5"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
+                                  {assignment.due_date &&
+                                    assignment.type &&
+                                    assignment.type.toLowerCase() !==
+                                      "resource" && (
+                                      <div
+                                        className={`flex items-center rounded-full px-3 py-1.5 shadow-sm ${
+                                          overdue && !submission
+                                            ? "bg-red-100 text-red-700 font-medium"
+                                            : "bg-gray-100 text-gray-700"
+                                        }`}
                                       >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth={2}
-                                          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                                        />
-                                      </svg>
-                                      Due: {formatDate(assignment.due_date)}
-                                      {overdue && !submission && (
-                                        <span className="ml-1">(Overdue)</span>
-                                      )}
-                                    </div>
-                                  )}
+                                        <svg
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          className="h-4 w-4 mr-1.5"
+                                          fill="none"
+                                          viewBox="0 0 24 24"
+                                          stroke="currentColor"
+                                        >
+                                          <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                                          />
+                                        </svg>
+                                        Due: {formatDate(assignment.due_date)}
+                                        {overdue && !submission && (
+                                          <span className="ml-1">
+                                            (Overdue)
+                                          </span>
+                                        )}
+                                      </div>
+                                    )}
                                   {/* ✅ Only show if NOT a "resource" and max_marks exists */}
-                                  {assignment.type?.toLowerCase() !== "resource" && assignment.max_marks && (
-                                    // ✅ This entire block will be skipped if type === "resource"
-                                    <div className="flex items-center bg-gray-100 px-3 py-1.5 rounded-full shadow-sm">
-                                      {/* ✅ No change here — just reused your existing SVG */}
-                                      <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        className="mr-1.5 h-4 w-4 text-gray-600"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                      >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth={2}
-                                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                        />
-                                      </svg>
-                                      Max&nbsp;Marks:&nbsp;{assignment.max_marks}
-                                    </div>
-                                  )}
+                                  {assignment.type?.toLowerCase() !==
+                                    "resource" &&
+                                    assignment.max_marks && (
+                                      // ✅ This entire block will be skipped if type === "resource"
+                                      <div className="flex items-center bg-gray-100 px-3 py-1.5 rounded-full shadow-sm">
+                                        {/* ✅ No change here — just reused your existing SVG */}
+                                        <svg
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          className="mr-1.5 h-4 w-4 text-gray-600"
+                                          fill="none"
+                                          viewBox="0 0 24 24"
+                                          stroke="currentColor"
+                                        >
+                                          <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth={2}
+                                            d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                                          />
+                                        </svg>
+                                        Max&nbsp;Marks:&nbsp;
+                                        {assignment.max_marks}
+                                      </div>
+                                    )}
                                 </div>
                               </div>
 
@@ -1142,79 +1147,16 @@ const MyCourses = () => {
                               )}
 
                             {/* Submission Section with enhanced UI */}
-                            {assignment.type && assignment.type.toLowerCase() !== "resource" && (
-                            <div className="border-t border-gray-200 pt-5 mt-4">
-                              {submission ? (
-                                <div className="bg-green-50 border border-green-200 p-5 rounded-xl shadow-inner">
-                                  <div className="flex items-center gap-2 mb-3">
-                                    <div className="bg-green-100 p-2 rounded-full text-green-700">
-                                      <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        className="h-5 w-5"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                      >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth={2}
-                                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                        />
-                                      </svg>
-                                    </div>
-                                    <span className="font-medium text-green-800">
-                                      Submitted on{" "}
-                                      {formatDate(submission.submitted_at)}
-                                    </span>
-                                  </div>
-
-                                  {submission.file_links &&
-                                    Object.keys(submission.file_links).length >
-                                      0 && (
-                                      <div className="mb-4 ml-9">
-                                        <p className="text-sm text-green-700 mb-2">
-                                          Submitted Files:
-                                        </p>
-                                        <div className="flex flex-wrap gap-2">
-                                          {Object.entries(
-                                            submission.file_links
-                                          ).map(([fileName, url], index) => (
-                                            <a
-                                              key={index}
-                                              href={url}
-                                              target="_blank"
-                                              rel="noopener noreferrer"
-                                              className="text-green-600 hover:text-green-800 text-sm bg-white px-3 py-1.5 rounded-lg border border-green-200 hover:border-green-300 transition-colors shadow-sm hover:shadow inline-flex items-center gap-1.5"
-                                            >
-                                              <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                className="h-4 w-4"
-                                                fill="none"
-                                                viewBox="0 0 24 24"
-                                                stroke="currentColor"
-                                              >
-                                                <path
-                                                  strokeLinecap="round"
-                                                  strokeLinejoin="round"
-                                                  strokeWidth={2}
-                                                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                                />
-                                              </svg>
-                                              {fileName}
-                                            </a>
-                                          ))}
-                                        </div>
-                                      </div>
-                                    )}
-
-                                  {submission.checked &&
-                                    submission.marks !== null && (
-                                      <div className="mb-4 ml-9 p-3.5 bg-white rounded-lg border border-green-200 shadow-sm">
-                                        <span className="text-green-800 font-medium flex items-center">
+                            {assignment.type &&
+                              assignment.type.toLowerCase() !== "resource" && (
+                                <div className="border-t border-gray-200 pt-5 mt-4">
+                                  {submission ? (
+                                    <div className="bg-green-50 border border-green-200 p-5 rounded-xl shadow-inner">
+                                      <div className="flex items-center gap-2 mb-3">
+                                        <div className="bg-green-100 p-2 rounded-full text-green-700">
                                           <svg
                                             xmlns="http://www.w3.org/2000/svg"
-                                            className="h-5 w-5 mr-1.5 text-green-600"
+                                            className="h-5 w-5"
                                             fill="none"
                                             viewBox="0 0 24 24"
                                             stroke="currentColor"
@@ -1223,363 +1165,38 @@ const MyCourses = () => {
                                               strokeLinecap="round"
                                               strokeLinejoin="round"
                                               strokeWidth={2}
-                                              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                                             />
                                           </svg>
-                                          Grade: {submission.marks}/
-                                          {assignment.max_marks || "N/A"}
+                                        </div>
+                                        <span className="font-medium text-green-800">
+                                          Submitted on{" "}
+                                          {formatDate(submission.submitted_at)}
                                         </span>
                                       </div>
-                                    )}
 
-                                  {/* Update Submission */}
-                                  <div className="mt-4 ml-9">
-                                    <p className="text-sm text-green-700 mb-3 font-medium">
-                                      Update Submission:
-                                    </p>
-
-                                    {/* File Upload Section */}
-                                    <div className="space-y-3 mb-4">
-                                      <div>
-                                        <label className="flex items-center justify-between text-xs text-green-600 mb-1 font-medium">
-                                          <span className="flex items-center">
-                                            <svg
-                                              xmlns="http://www.w3.org/2000/svg"
-                                              className="h-3.5 w-3.5 mr-1"
-                                              fill="none"
-                                              viewBox="0 0 24 24"
-                                              stroke="currentColor"
-                                            >
-                                              <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth={2}
-                                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                                              />
-                                            </svg>
-                                            Upload Files (Multiple files supported)
-                                          </span>
-                                        </label>
-                                        <div className="relative border-2 border-dashed border-green-300 rounded-lg p-4 transition-all hover:border-green-500 bg-green-50 hover:bg-green-100/50">
-                                          <input
-                                            type="file"
-                                            multiple
-                                            onChange={(e) =>
-                                              handleFileSelect(
-                                                assignment.id,
-                                                e.target.files
-                                              )
-                                            }
-                                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                                          />
-                                          <div className="text-center">
-                                            <svg
-                                              xmlns="http://www.w3.org/2000/svg"
-                                              className="mx-auto h-8 w-8 text-green-500"
-                                              fill="none"
-                                              viewBox="0 0 24 24"
-                                              stroke="currentColor"
-                                            >
-                                              <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth={2}
-                                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                                              />
-                                            </svg>
-                                            <p className="mt-1 text-sm text-green-600">
-                                              Drag and drop files here or click to
-                                              browse
+                                      {submission.file_links &&
+                                        Object.keys(submission.file_links)
+                                          .length > 0 && (
+                                          <div className="mb-4 ml-9">
+                                            <p className="text-sm text-green-700 mb-2">
+                                              Submitted Files:
                                             </p>
-                                            <p className="text-xs text-green-500 mt-1">
-                                              You can select multiple files at once
-                                            </p>
-                                          </div>
-                                        </div>
-                                        
-                                        {selectedFiles[assignment.id] &&
-                                          selectedFiles[assignment.id].length >
-                                            0 && (
-                                            <div className="mt-3 bg-white p-3 rounded-lg border border-green-200 shadow-sm">
-                                              <div className="flex items-center justify-between mb-2">
-                                                <p className="text-xs text-green-600 font-medium">
-                                                  {
-                                                    selectedFiles[assignment.id]
-                                                      .length
-                                                  }{" "}
-                                                  file(s) selected •{" "}
-                                                  {formatFileSize(
-                                                    getTotalFileSize(
-                                                      selectedFiles[assignment.id]
-                                                    )
-                                                  )}
-                                                </p>
-                                                <button
-                                                  onClick={() =>
-                                                    clearSelectedFiles(
-                                                      assignment.id
-                                                    )
-                                                  }
-                                                  className="text-xs text-red-500 hover:text-red-700 flex items-center"
-                                                >
-                                                  <svg
-                                                    xmlns="http://www.w3.org/2000/svg"
-                                                    className="h-3.5 w-3.5 mr-1"
-                                                    fill="none"
-                                                    viewBox="0 0 24 24"
-                                                    stroke="currentColor"
-                                                  >
-                                                    <path
-                                                      strokeLinecap="round"
-                                                      strokeLinejoin="round"
-                                                      strokeWidth={2}
-                                                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                                    />
-                                                  </svg>
-                                                  Clear all
-                                                </button>
-                                              </div>
-                                              <div className="max-h-32 overflow-y-auto pr-1">
-                                                <div className="space-y-1">
-                                                  {selectedFiles[
-                                                    assignment.id
-                                                  ].map((file, index) => (
-                                                    <div
-                                                      key={index}
-                                                      className="flex items-center justify-between text-xs bg-green-50 p-2 rounded border border-green-200"
-                                                    >
-                                                      <div className="flex items-center gap-1 truncate mr-2">
-                                                        <svg
-                                                          xmlns="http://www.w3.org/2000/svg"
-                                                          className="h-3.5 w-3.5 flex-shrink-0 text-green-600"
-                                                          fill="none"
-                                                          viewBox="0 0 24 24"
-                                                          stroke="currentColor"
-                                                        >
-                                                          <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            strokeWidth={2}
-                                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                                                          />
-                                                        </svg>
-                                                        <span className="truncate font-medium">
-                                                          {file.name}
-                                                        </span>
-                                                      </div>
-                                                      <span className="flex-shrink-0 text-green-600 font-medium">
-                                                        {formatFileSize(file.size)}
-                                                      </span>
-                                                    </div>
-                                                  ))}
-                                                </div>
-                                              </div>
-                                            </div>
-                                          )}
-                                      </div>
-
-                                      <div className="text-xs text-green-600 text-center">
-                                        OR
-                                      </div>
-
-                                      <div>
-                                        <label className="block text-xs text-green-600 mb-1 font-medium">
-                                          Manual File Links:
-                                        </label>
-                                        <input
-                                          type="text"
-                                          placeholder="Enter file links (comma-separated)"
-                                          value={
-                                            uploadingAssignment ===
-                                            assignment.id
-                                              ? fileLinks
-                                              : ""
-                                          }
-                                          onChange={(e) => {
-                                            if (
-                                              uploadingAssignment ===
-                                              assignment.id
-                                            ) {
-                                              setFileLinks(e.target.value);
-                                            }
-                                          }}
-                                          onFocus={() =>
-                                            setUploadingAssignment(
-                                              assignment.id
-                                            )
-                                          }
-                                          className="w-full px-3.5 py-2.5 border border-green-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm"
-                                        />
-                                      </div>
-                                    </div>
-
-                                    <button
-                                      onClick={() =>
-                                        handleSubmissionUploadWithFiles(
-                                          assignment.id
-                                        )
-                                      }
-                                      disabled={
-                                        uploadingAssignment === assignment.id &&
-                                        !fileLinks.trim() &&
-                                        (!selectedFiles[assignment.id] ||
-                                          selectedFiles[assignment.id]
-                                            .length === 0)
-                                      }
-                                      className="w-full bg-green-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors shadow-sm hover:shadow disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                                    >
-                                      {uploadingFiles ? (
-                                        <>
-                                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                                          Uploading...
-                                        </>
-                                      ) : (
-                                        <>
-                                          <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            className="h-4 w-4"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke="currentColor"
-                                          >
-                                            <path
-                                              strokeLinecap="round"
-                                              strokeLinejoin="round"
-                                              strokeWidth={2}
-                                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                                            />
-                                          </svg>
-                                          Update Submission
-                                        </>
-                                      )}
-                                    </button>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div
-                                  className={`p-5 rounded-xl border-2 border-dashed ${
-                                    overdue
-                                      ? "border-red-300 bg-red-50"
-                                      : "border-indigo-300 bg-indigo-50"
-                                  } shadow-inner`}
-                                >
-                                  <div className="text-center mb-5">
-                                    <div
-                                      className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-3 ${
-                                        overdue
-                                          ? "bg-red-100 text-red-500"
-                                          : "bg-indigo-100 text-indigo-500"
-                                      }`}
-                                    >
-                                      <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        className="h-8 w-8"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                      >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          strokeWidth={2}
-                                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                                        />
-                                      </svg>
-                                    </div>
-                                    <p
-                                      className={`text-lg font-medium ${
-                                        overdue
-                                          ? "text-red-800"
-                                          : "text-indigo-700"
-                                      }`}
-                                    >
-                                      {overdue
-                                        ? "Assignment Overdue"
-                                        : "Submit Your Assignment"}
-                                    </p>
-                                    <p
-                                      className={`text-sm mt-1 ${
-                                        overdue
-                                          ? "text-red-600"
-                                          : "text-indigo-600"
-                                      }`}
-                                    >
-                                      {overdue
-                                        ? "You can still submit, but it will be marked as late"
-                                        : "Upload your work before the deadline"}
-                                    </p>
-                                  </div>
-
-                                  <div className="space-y-4">
-                                    {/* File Upload Section */}
-                                    <div>
-                                      <label
-                                        className={`block text-sm font-medium mb-2 ${
-                                          overdue
-                                            ? "text-red-700"
-                                            : "text-indigo-700"
-                                        }`}
-                                      >
-                                        Upload Files:
-                                      </label>
-                                      <input
-                                        type="file"
-                                        multiple
-                                        onChange={(e) =>
-                                          handleFileSelect(
-                                            assignment.id,
-                                            e.target.files
-                                          )
-                                        }
-                                        className={`block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium transition-colors ${
-                                          overdue
-                                            ? "text-red-600 file:bg-red-100 file:text-red-700 hover:file:bg-red-200"
-                                            : "text-indigo-600 file:bg-indigo-100 file:text-indigo-700 hover:file:bg-indigo-200"
-                                        }`}
-                                      />
-                                      {selectedFiles[assignment.id] &&
-                                        selectedFiles[assignment.id].length >
-                                          0 && (
-                                          <div className="mt-2">
-                                            <div className="flex items-center justify-between mb-1">
-                                              <p
-                                                className={`text-xs mb-1 ${
-                                                  overdue
-                                                    ? "text-red-600"
-                                                    : "text-indigo-600"
-                                                }`}
-                                              >
-                                                Selected files:
-                                              </p>
-                                              <button
-                                                onClick={() =>
-                                                  clearSelectedFiles(
-                                                    assignment.id
-                                                  )
-                                                }
-                                                className={`text-xs hover:underline ${
-                                                  overdue
-                                                    ? "text-red-600 hover:text-red-800"
-                                                    : "text-indigo-600 hover:text-indigo-800"
-                                                }`}
-                                              >
-                                                Clear all
-                                              </button>
-                                            </div>
-                                            <div className="flex flex-wrap gap-1">
-                                              {selectedFiles[assignment.id].map(
-                                                (file, index) => (
-                                                  <span
+                                            <div className="flex flex-wrap gap-2">
+                                              {Object.entries(
+                                                submission.file_links
+                                              ).map(
+                                                ([fileName, url], index) => (
+                                                  <a
                                                     key={index}
-                                                    className={`text-xs px-2 py-1 rounded border flex items-center gap-1 ${
-                                                      overdue
-                                                        ? "bg-red-100 text-red-700 border-red-200"
-                                                        : "bg-indigo-100 text-indigo-700 border-indigo-200"
-                                                    }`}
+                                                    href={url}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-green-600 hover:text-green-800 text-sm bg-white px-3 py-1.5 rounded-lg border border-green-200 hover:border-green-300 transition-colors shadow-sm hover:shadow inline-flex items-center gap-1.5"
                                                   >
                                                     <svg
                                                       xmlns="http://www.w3.org/2000/svg"
-                                                      className="h-3 w-3"
+                                                      className="h-4 w-4"
                                                       fill="none"
                                                       viewBox="0 0 24 24"
                                                       stroke="currentColor"
@@ -1591,104 +1208,288 @@ const MyCourses = () => {
                                                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                                                       />
                                                     </svg>
-                                                    <span>{file.name}</span>
-                                                    <span
-                                                      className={
-                                                        overdue
-                                                          ? "text-red-600"
-                                                          : "text-indigo-600"
-                                                      }
-                                                    >
-                                                      (
-                                                      {formatFileSize(
-                                                        file.size
-                                                      )}
-                                                      )
-                                                    </span>
-                                                  </span>
+                                                    {fileName}
+                                                  </a>
                                                 )
                                               )}
                                             </div>
                                           </div>
                                         )}
-                                    </div>
 
-                                    <div
-                                      className={`text-center text-sm font-medium ${
-                                        overdue
-                                          ? "text-red-600"
-                                          : "text-indigo-600"
-                                      }`}
-                                    >
-                                      OR
-                                    </div>
+                                      {submission.checked &&
+                                        submission.marks !== null && (
+                                          <div className="mb-4 ml-9 p-3.5 bg-white rounded-lg border border-green-200 shadow-sm">
+                                            <span className="text-green-800 font-medium flex items-center">
+                                              <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                className="h-5 w-5 mr-1.5 text-green-600"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                              >
+                                                <path
+                                                  strokeLinecap="round"
+                                                  strokeLinejoin="round"
+                                                  strokeWidth={2}
+                                                  d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                                                />
+                                              </svg>
+                                              Grade: {submission.marks}/
+                                              {assignment.max_marks || "N/A"}
+                                            </span>
+                                          </div>
+                                        )}
 
-                                    <div>
-                                      <label
-                                        className={`block text-sm font-medium mb-2 ${
-                                          overdue
-                                            ? "text-red-700"
-                                            : "text-indigo-700"
-                                        }`}
-                                      >
-                                        Manual File Links:
-                                      </label>
-                                      <input
-                                        type="text"
-                                        placeholder="Enter file links (comma-separated)"
-                                        value={
-                                          uploadingAssignment === assignment.id
-                                            ? fileLinks
-                                            : ""
-                                        }
-                                        onChange={(e) => {
-                                          if (
-                                            uploadingAssignment ===
-                                            assignment.id
-                                          ) {
-                                            setFileLinks(e.target.value);
+                                      {/* Update Submission */}
+                                      <div className="mt-4 ml-9">
+                                        <p className="text-sm text-green-700 mb-3 font-medium">
+                                          Update Submission:
+                                        </p>
+
+                                        {/* File Upload Section */}
+                                        <div className="space-y-3 mb-4">
+                                          <div>
+                                            <label className="flex items-center justify-between text-xs text-green-600 mb-1 font-medium">
+                                              <span className="flex items-center">
+                                                <svg
+                                                  xmlns="http://www.w3.org/2000/svg"
+                                                  className="h-3.5 w-3.5 mr-1"
+                                                  fill="none"
+                                                  viewBox="0 0 24 24"
+                                                  stroke="currentColor"
+                                                >
+                                                  <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth={2}
+                                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                                                  />
+                                                </svg>
+                                                Upload Files (Multiple files
+                                                supported)
+                                              </span>
+                                            </label>
+                                            <div className="relative border-2 border-dashed border-green-300 rounded-lg p-4 transition-all hover:border-green-500 bg-green-50 hover:bg-green-100/50">
+                                              <input
+                                                type="file"
+                                                multiple
+                                                onChange={(e) =>
+                                                  handleFileSelect(
+                                                    assignment.id,
+                                                    e.target.files
+                                                  )
+                                                }
+                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                              />
+                                              <div className="text-center">
+                                                <svg
+                                                  xmlns="http://www.w3.org/2000/svg"
+                                                  className="mx-auto h-8 w-8 text-green-500"
+                                                  fill="none"
+                                                  viewBox="0 0 24 24"
+                                                  stroke="currentColor"
+                                                >
+                                                  <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    strokeWidth={2}
+                                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                                                  />
+                                                </svg>
+                                                <p className="mt-1 text-sm text-green-600">
+                                                  Drag and drop files here or
+                                                  click to browse
+                                                </p>
+                                                <p className="text-xs text-green-500 mt-1">
+                                                  You can select multiple files
+                                                  at once
+                                                </p>
+                                              </div>
+                                            </div>
+
+                                            {selectedFiles[assignment.id] &&
+                                              selectedFiles[assignment.id]
+                                                .length > 0 && (
+                                                <div className="mt-3 bg-white p-3 rounded-lg border border-green-200 shadow-sm">
+                                                  <div className="flex items-center justify-between mb-2">
+                                                    <p className="text-xs text-green-600 font-medium">
+                                                      {
+                                                        selectedFiles[
+                                                          assignment.id
+                                                        ].length
+                                                      }{" "}
+                                                      file(s) selected •{" "}
+                                                      {formatFileSize(
+                                                        getTotalFileSize(
+                                                          selectedFiles[
+                                                            assignment.id
+                                                          ]
+                                                        )
+                                                      )}
+                                                    </p>
+                                                    <button
+                                                      onClick={() =>
+                                                        clearSelectedFiles(
+                                                          assignment.id
+                                                        )
+                                                      }
+                                                      className="text-xs text-red-500 hover:text-red-700 flex items-center"
+                                                    >
+                                                      <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        className="h-3.5 w-3.5 mr-1"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                        stroke="currentColor"
+                                                      >
+                                                        <path
+                                                          strokeLinecap="round"
+                                                          strokeLinejoin="round"
+                                                          strokeWidth={2}
+                                                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                        />
+                                                      </svg>
+                                                      Clear all
+                                                    </button>
+                                                  </div>
+                                                  <div className="max-h-32 overflow-y-auto pr-1">
+                                                    <div className="space-y-1">
+                                                      {selectedFiles[
+                                                        assignment.id
+                                                      ].map((file, index) => (
+                                                        <div
+                                                          key={index}
+                                                          className="flex items-center justify-between text-xs bg-green-50 p-2 rounded border border-green-200"
+                                                        >
+                                                          <div className="flex items-center gap-1 truncate mr-2">
+                                                            <svg
+                                                              xmlns="http://www.w3.org/2000/svg"
+                                                              className="h-3.5 w-3.5 flex-shrink-0 text-green-600"
+                                                              fill="none"
+                                                              viewBox="0 0 24 24"
+                                                              stroke="currentColor"
+                                                            >
+                                                              <path
+                                                                strokeLinecap="round"
+                                                                strokeLinejoin="round"
+                                                                strokeWidth={2}
+                                                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                              />
+                                                            </svg>
+                                                            <span className="truncate font-medium">
+                                                              {file.name}
+                                                            </span>
+                                                          </div>
+                                                          <span className="flex-shrink-0 text-green-600 font-medium">
+                                                            {formatFileSize(
+                                                              file.size
+                                                            )}
+                                                          </span>
+                                                        </div>
+                                                      ))}
+                                                    </div>
+                                                  </div>
+                                                </div>
+                                              )}
+                                          </div>
+
+                                          <div className="text-xs text-green-600 text-center">
+                                            OR
+                                          </div>
+
+                                          <div>
+                                            <label className="block text-xs text-green-600 mb-1 font-medium">
+                                              Manual File Links:
+                                            </label>
+                                            <input
+                                              type="text"
+                                              placeholder="Enter file links (comma-separated)"
+                                              value={
+                                                uploadingAssignment ===
+                                                assignment.id
+                                                  ? fileLinks
+                                                  : ""
+                                              }
+                                              onChange={(e) => {
+                                                if (
+                                                  uploadingAssignment ===
+                                                  assignment.id
+                                                ) {
+                                                  setFileLinks(e.target.value);
+                                                }
+                                              }}
+                                              onFocus={() =>
+                                                setUploadingAssignment(
+                                                  assignment.id
+                                                )
+                                              }
+                                              className="w-full px-3.5 py-2.5 border border-green-300 rounded-lg text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent shadow-sm"
+                                            />
+                                          </div>
+                                        </div>
+
+                                        <button
+                                          onClick={() =>
+                                            handleSubmissionUploadWithFiles(
+                                              assignment.id
+                                            )
                                           }
-                                        }}
-                                        onFocus={() =>
-                                          setUploadingAssignment(assignment.id)
-                                        }
-                                        className={`w-full px-3.5 py-2.5 border rounded-lg text-sm shadow-sm ${
-                                          overdue
-                                            ? "border-red-300 focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                                            : "border-indigo-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                                        }`}
-                                      />
+                                          disabled={
+                                            uploadingAssignment ===
+                                              assignment.id &&
+                                            !fileLinks.trim() &&
+                                            (!selectedFiles[assignment.id] ||
+                                              selectedFiles[assignment.id]
+                                                .length === 0)
+                                          }
+                                          className="w-full bg-green-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors shadow-sm hover:shadow disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                        >
+                                          {uploadingFiles ? (
+                                            <>
+                                              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                                              Uploading...
+                                            </>
+                                          ) : (
+                                            <>
+                                              <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                className="h-4 w-4"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                              >
+                                                <path
+                                                  strokeLinecap="round"
+                                                  strokeLinejoin="round"
+                                                  strokeWidth={2}
+                                                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                                                />
+                                              </svg>
+                                              Update Submission
+                                            </>
+                                          )}
+                                        </button>
+                                      </div>
                                     </div>
-
-                                    <button
-                                      onClick={() =>
-                                        handleSubmissionUploadWithFiles(
-                                          assignment.id
-                                        )
-                                      }
-                                      disabled={
-                                        uploadingAssignment === assignment.id &&
-                                        !fileLinks.trim() &&
-                                        (!selectedFiles[assignment.id] ||
-                                          selectedFiles[assignment.id]
-                                            .length === 0)
-                                      }
-                                      className={`w-full px-4 py-2.5 rounded-lg text-sm font-medium text-white shadow-sm hover:shadow transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
+                                  ) : (
+                                    <div
+                                      className={`p-5 rounded-xl border-2 border-dashed ${
                                         overdue
-                                          ? "bg-red-600 hover:bg-red-700"
-                                          : "bg-indigo-600 hover:bg-indigo-700"
-                                      }`}
+                                          ? "border-red-300 bg-red-50"
+                                          : "border-indigo-300 bg-indigo-50"
+                                      } shadow-inner`}
                                     >
-                                      {uploadingFiles ? (
-                                        <>
-                                          <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
-                                          Uploading...
-                                        </>
-                                      ) : (
-                                        <>
+                                      <div className="text-center mb-5">
+                                        <div
+                                          className={`inline-flex items-center justify-center w-16 h-16 rounded-full mb-3 ${
+                                            overdue
+                                              ? "bg-red-100 text-red-500"
+                                              : "bg-indigo-100 text-indigo-500"
+                                          }`}
+                                        >
                                           <svg
                                             xmlns="http://www.w3.org/2000/svg"
-                                            className="h-4 w-4"
+                                            className="h-8 w-8"
                                             fill="none"
                                             viewBox="0 0 24 24"
                                             stroke="currentColor"
@@ -1700,15 +1501,234 @@ const MyCourses = () => {
                                               d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
                                             />
                                           </svg>
-                                          Submit Assignment
-                                        </>
-                                      )}
-                                    </button>
-                                  </div>
+                                        </div>
+                                        <p
+                                          className={`text-lg font-medium ${
+                                            overdue
+                                              ? "text-red-800"
+                                              : "text-indigo-700"
+                                          }`}
+                                        >
+                                          {overdue
+                                            ? "Assignment Overdue"
+                                            : "Submit Your Assignment"}
+                                        </p>
+                                        <p
+                                          className={`text-sm mt-1 ${
+                                            overdue
+                                              ? "text-red-600"
+                                              : "text-indigo-600"
+                                          }`}
+                                        >
+                                          {overdue
+                                            ? "You can still submit, but it will be marked as late"
+                                            : "Upload your work before the deadline"}
+                                        </p>
+                                      </div>
+
+                                      <div className="space-y-4">
+                                        {/* File Upload Section */}
+                                        <div>
+                                          <label
+                                            className={`block text-sm font-medium mb-2 ${
+                                              overdue
+                                                ? "text-red-700"
+                                                : "text-indigo-700"
+                                            }`}
+                                          >
+                                            Upload Files:
+                                          </label>
+                                          <input
+                                            type="file"
+                                            multiple
+                                            onChange={(e) =>
+                                              handleFileSelect(
+                                                assignment.id,
+                                                e.target.files
+                                              )
+                                            }
+                                            className={`block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium transition-colors ${
+                                              overdue
+                                                ? "text-red-600 file:bg-red-100 file:text-red-700 hover:file:bg-red-200"
+                                                : "text-indigo-600 file:bg-indigo-100 file:text-indigo-700 hover:file:bg-indigo-200"
+                                            }`}
+                                          />
+                                          {selectedFiles[assignment.id] &&
+                                            selectedFiles[assignment.id]
+                                              .length > 0 && (
+                                              <div className="mt-2">
+                                                <div className="flex items-center justify-between mb-1">
+                                                  <p
+                                                    className={`text-xs mb-1 ${
+                                                      overdue
+                                                        ? "text-red-600"
+                                                        : "text-indigo-600"
+                                                    }`}
+                                                  >
+                                                    Selected files:
+                                                  </p>
+                                                  <button
+                                                    onClick={() =>
+                                                      clearSelectedFiles(
+                                                        assignment.id
+                                                      )
+                                                    }
+                                                    className={`text-xs hover:underline ${
+                                                      overdue
+                                                        ? "text-red-600 hover:text-red-800"
+                                                        : "text-indigo-600 hover:text-indigo-800"
+                                                    }`}
+                                                  >
+                                                    Clear all
+                                                  </button>
+                                                </div>
+                                                <div className="flex flex-wrap gap-1">
+                                                  {selectedFiles[
+                                                    assignment.id
+                                                  ].map((file, index) => (
+                                                    <span
+                                                      key={index}
+                                                      className={`text-xs px-2 py-1 rounded border flex items-center gap-1 ${
+                                                        overdue
+                                                          ? "bg-red-100 text-red-700 border-red-200"
+                                                          : "bg-indigo-100 text-indigo-700 border-indigo-200"
+                                                      }`}
+                                                    >
+                                                      <svg
+                                                        xmlns="http://www.w3.org/2000/svg"
+                                                        className="h-3 w-3"
+                                                        fill="none"
+                                                        viewBox="0 0 24 24"
+                                                        stroke="currentColor"
+                                                      >
+                                                        <path
+                                                          strokeLinecap="round"
+                                                          strokeLinejoin="round"
+                                                          strokeWidth={2}
+                                                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                                        />
+                                                      </svg>
+                                                      <span>{file.name}</span>
+                                                      <span
+                                                        className={
+                                                          overdue
+                                                            ? "text-red-600"
+                                                            : "text-indigo-600"
+                                                        }
+                                                      >
+                                                        (
+                                                        {formatFileSize(
+                                                          file.size
+                                                        )}
+                                                        )
+                                                      </span>
+                                                    </span>
+                                                  ))}
+                                                </div>
+                                              </div>
+                                            )}
+                                        </div>
+
+                                        <div
+                                          className={`text-center text-sm font-medium ${
+                                            overdue
+                                              ? "text-red-600"
+                                              : "text-indigo-600"
+                                          }`}
+                                        >
+                                          OR
+                                        </div>
+
+                                        <div>
+                                          <label
+                                            className={`block text-sm font-medium mb-2 ${
+                                              overdue
+                                                ? "text-red-700"
+                                                : "text-indigo-700"
+                                            }`}
+                                          >
+                                            Manual File Links:
+                                          </label>
+                                          <input
+                                            type="text"
+                                            placeholder="Enter file links (comma-separated)"
+                                            value={
+                                              uploadingAssignment ===
+                                              assignment.id
+                                                ? fileLinks
+                                                : ""
+                                            }
+                                            onChange={(e) => {
+                                              if (
+                                                uploadingAssignment ===
+                                                assignment.id
+                                              ) {
+                                                setFileLinks(e.target.value);
+                                              }
+                                            }}
+                                            onFocus={() =>
+                                              setUploadingAssignment(
+                                                assignment.id
+                                              )
+                                            }
+                                            className={`w-full px-3.5 py-2.5 border rounded-lg text-sm shadow-sm ${
+                                              overdue
+                                                ? "border-red-300 focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                                : "border-indigo-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                                            }`}
+                                          />
+                                        </div>
+
+                                        <button
+                                          onClick={() =>
+                                            handleSubmissionUploadWithFiles(
+                                              assignment.id
+                                            )
+                                          }
+                                          disabled={
+                                            uploadingAssignment ===
+                                              assignment.id &&
+                                            !fileLinks.trim() &&
+                                            (!selectedFiles[assignment.id] ||
+                                              selectedFiles[assignment.id]
+                                                .length === 0)
+                                          }
+                                          className={`w-full px-4 py-2.5 rounded-lg text-sm font-medium text-white shadow-sm hover:shadow transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
+                                            overdue
+                                              ? "bg-red-600 hover:bg-red-700"
+                                              : "bg-indigo-600 hover:bg-indigo-700"
+                                          }`}
+                                        >
+                                          {uploadingFiles ? (
+                                            <>
+                                              <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                                              Uploading...
+                                            </>
+                                          ) : (
+                                            <>
+                                              <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                className="h-4 w-4"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                              >
+                                                <path
+                                                  strokeLinecap="round"
+                                                  strokeLinejoin="round"
+                                                  strokeWidth={2}
+                                                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                                                />
+                                              </svg>
+                                              Submit Assignment
+                                            </>
+                                          )}
+                                        </button>
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
                               )}
-                            </div>
-                            )}
                           </div>
                         </div>
                       );

@@ -3,11 +3,14 @@ import { ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const EnrollCourse = () => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const { user } = useContext(AuthContext);
   const [studentProfile, setStudentProfile] = useState({});
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -16,17 +19,13 @@ const EnrollCourse = () => {
     courseCode: ''
   });
 
-  // Authentication check and data loading
-  useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user")) || JSON.parse(sessionStorage.getItem("user"));
-    
-    if (!storedUser?.isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-    
-    setUser(storedUser);
-  }, [navigate]);
+  // Authentication check
+    useEffect(() => {
+      if (!user?.isAuthenticated) {
+        navigate("/login");
+        return;
+      }
+    }, [navigate]);
 
   useEffect(() => {
     const fetchStudent = async (userId) => {

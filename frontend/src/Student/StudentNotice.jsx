@@ -14,6 +14,8 @@ import {
     ArrowLeft,
 } from "lucide-react";
 
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const StudentNotice = () => {
@@ -23,20 +25,20 @@ const StudentNotice = () => {
     const [error, setError] = useState(null);
     const [searchTerm, setSearchTerm] = useState("");
     const [showModal, setShowModal] = useState(false);
+    const { user } = useContext(AuthContext);
+
 
     useEffect(() => {
         const fetchNoticesInternal = async () => {
             setLoading(true);
             setError(null);
-            // const studentId =
-            //     localStorage.getItem("student_id") ||
-            //     sessionStorage.getItem("student_id");
-            let userString = sessionStorage.getItem("user");
+           
+            let userString = user;
             let studentId = null;
 
-            if (userString) {
+            if (user) {
                 try {
-                    const userObj = JSON.parse(userString);
+                    const userObj = user;
                     studentId = userObj.id; // or userObj.student_id if that's the field
                     // If batch is also present and you need it, use userObj.batch
                 } catch (e) {
@@ -48,18 +50,7 @@ const StudentNotice = () => {
             }
             console.log(studentId);
             if (!studentId) {
-                userString = localStorage.getItem("user");
-                if (userString) {
-                    try {
-                        const userObj = JSON.parse(userString);
-                        studentId = userObj.id; // or userObj.student_id if that's the field
-                    } catch (e) {
-                        console.error(
-                            "Failed to parse user from localStorage:",
-                            e
-                        );
-                    }
-                }
+               studentId = user?.id;
             }
             if (!studentId) {
                 setError("Student ID not found. Please log in again.");

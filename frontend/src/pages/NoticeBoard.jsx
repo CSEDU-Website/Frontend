@@ -6,6 +6,9 @@ import { Calendar, Bell, User, ChevronRight, ExternalLink, FileText, Pin } from 
 // Components
 import Navbar from '../components/Navbar';
 
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 const NoticeBoard = () => {
@@ -15,8 +18,8 @@ const NoticeBoard = () => {
   const [selectedNotice, setSelectedNotice] = useState(null);
   
   // Get user information if logged in
-  const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
-  const isLoggedIn = user.isAuthenticated;
+  const { user } = useContext(AuthContext);
+  const isLoggedIn = user?.isAuthenticated || false;
   
   // Fetch notices when component mounts
 

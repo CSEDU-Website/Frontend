@@ -3,26 +3,19 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 export default function TeacherClassroom() {
   const { course_id } = useParams();
   const [course, setCourse] = useState({});
 
-  const [user, setUser] = useState(null);
+  const { user } = useContext(AuthContext);
   const [teacherProfile, setTeacherProfile] = useState({});
 
   useEffect(() => {
-    const storedUser =
-      JSON.parse(localStorage.getItem("user")) ||
-      JSON.parse(sessionStorage.getItem("user"));
-
-    console.log("stored user: ");
-    console.log(storedUser);
-
-    if (storedUser?.isAuthenticated && !user) {
-      setUser(storedUser);
-    }
 
     async function getClassById(courseId) {
       try {

@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import {
-  Search,
-  UserCircle2,
-  Eye,
-  EyeOff,
-  ArrowLeft,
-} from "lucide-react";
+import { Search, UserCircle2, Eye, EyeOff, ArrowLeft } from "lucide-react";
 
 import axios from "axios";
+
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -42,31 +39,35 @@ const TeacherSettings = () => {
   const [newPass, setNewPass] = useState("");
   const [confirmPass, setConfirmPass] = useState("");
 
-  const [user, setUser] = useState(null);
+  const { user } = useContext(AuthContext);
   const [teacherProfile, setTeacherProfile] = useState({});
   const [originalProfile, setOriginalProfile] = useState({});
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const navigate = useNavigate();
 
+  // Authentication check
   useEffect(() => {
-    const storedUser =
-      JSON.parse(localStorage.getItem("user")) ||
-      JSON.parse(sessionStorage.getItem("user"));
-
-    if (storedUser?.isAuthenticated && !user) {
-      setUser(storedUser);
+    if (!user?.isAuthenticated) {
+      navigate("/login");
+      return;
     }
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     const fetchTeacher = async (userId) => {
       try {
-        const response = await axios.get(`${BACKEND_URL}/v1/teacher/profile/get`, {
-          params: { userId },
-        });
+        const response = await axios.get(
+          `${BACKEND_URL}/v1/teacher/profile/get`,
+          {
+            params: { userId },
+          }
+        );
         setTeacherProfile(response?.data);
       } catch (error) {
-        console.error("Failed to fetch teacher:", error.response?.data || error.message);
+        console.error(
+          "Failed to fetch teacher:",
+          error.response?.data || error.message
+        );
       }
     };
 
@@ -90,7 +91,7 @@ const TeacherSettings = () => {
       setTwitter(teacherProfile?.twitter || "");
       setWhatsapp(teacherProfile?.whatsapp || "");
       setResearchgate(teacherProfile?.researchgate || "");
-      
+
       // Handle profile image from backend
       if (teacherProfile?.profile_image) {
         // // Check if it's a path or base64
@@ -140,11 +141,28 @@ const TeacherSettings = () => {
       twitter !== originalProfile.twitter ||
       whatsapp !== originalProfile.whatsapp ||
       researchgate !== originalProfile.researchgate ||
-      preview !== null || 
+      preview !== null ||
       profileImgPath !== originalProfile.profile_image;
 
     setHasUnsavedChanges(hasChanges);
-  }, [firstName, lastName, department, phone, work, bio, website, googleScholar, academia, linkedin, twitter, whatsapp, researchgate, preview, profileImgPath, originalProfile]);
+  }, [
+    firstName,
+    lastName,
+    department,
+    phone,
+    work,
+    bio,
+    website,
+    googleScholar,
+    academia,
+    linkedin,
+    twitter,
+    whatsapp,
+    researchgate,
+    preview,
+    profileImgPath,
+    originalProfile,
+  ]);
 
   const handleBackClick = (e) => {
     if (hasUnsavedChanges) {
@@ -188,7 +206,7 @@ const TeacherSettings = () => {
       alert("Profile updated successfully!");
       setHasUnsavedChanges(false);
       setPreview(null);
-      
+
       // Auto reload the page to refresh all data
       window.location.reload();
     } catch (err) {
@@ -239,10 +257,10 @@ const TeacherSettings = () => {
 
     try {
       setUploadingImage(true);
-      
+
       // Create form data for file upload
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append("file", file);
 
       // Send file to backend
       const response = await axios.post(
@@ -250,7 +268,7 @@ const TeacherSettings = () => {
         formData,
         {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            "Content-Type": "multipart/form-data",
           },
         }
       );
@@ -258,14 +276,13 @@ const TeacherSettings = () => {
       // Get the file path from response
       const filePath = response.data?.url;
       setProfileImgPath(filePath);
-      
+
       // Create a preview URL
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result);
       };
       reader.readAsDataURL(file);
-      
     } catch (error) {
       console.error("Image upload failed:", error);
       alert("Failed to upload image. Please try again.");
@@ -276,7 +293,6 @@ const TeacherSettings = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-    
       {/* Main content */}
       <main className="flex-1 max-w-5xl mx-auto px-6 py-8 w-full">
         {/* Account Settings */}
@@ -322,7 +338,7 @@ const TeacherSettings = () => {
               <label
                 htmlFor="upload"
                 className={`text-orange-500 font-semibold cursor-pointer hover:underline ${
-                  uploadingImage ? 'opacity-50' : ''
+                  uploadingImage ? "opacity-50" : ""
                 }`}
               >
                 {uploadingImage ? "Uploading..." : "Upload Photo"}
@@ -431,7 +447,9 @@ const TeacherSettings = () => {
 
               {/* Profile Links */}
               <div>
-                <h3 className="font-semibold mb-3 text-gray-700">Profile Links</h3>
+                <h3 className="font-semibold mb-3 text-gray-700">
+                  Profile Links
+                </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <input
                     type="url"

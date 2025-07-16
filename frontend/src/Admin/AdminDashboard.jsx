@@ -1,4 +1,7 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
+
+
 import {
     Users,
     Calendar,
@@ -29,11 +32,15 @@ import AdminEvent from "./AdminEvent";
 import AdminNotice from "./AdminNotice";
 import AdminFinance from "./AdminFinance";
 
+
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 function AdminDashboard() {
     const [activeTab, setActiveTab] = useState("dashboard");
-    const [user, setUser] = useState(null);
+    const { user, setUser } = useContext(AuthContext);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [dashboardData, setDashboardData] = useState({
         totalStudents: 0,
@@ -57,15 +64,6 @@ function AdminDashboard() {
     });
     const [recentMeetings, setRecentMeetings] = useState([]);
 
-    // Get current user from storage
-    useEffect(() => {
-        const storedUser =
-            JSON.parse(localStorage.getItem("user")) ||
-            JSON.parse(sessionStorage.getItem("user"));
-        if (storedUser?.isAuthenticated && storedUser.role === "admin") {
-            setUser(storedUser);
-        }
-    }, []);
 
     // Fetch dashboard data
     useEffect(() => {
@@ -460,6 +458,7 @@ function AdminDashboard() {
                                 )}
                             </button>
                         </div>
+
                     </div>
                 </div>
             </header>
@@ -495,6 +494,7 @@ function AdminDashboard() {
                     </nav>
                 </aside>
 
+
                 {/* Mobile Navigation */}
                 <div
                     className={`${
@@ -527,6 +527,7 @@ function AdminDashboard() {
                         </ul>
                     </nav>
                 </div>
+
 
                 {/* Main Content */}
                 <main className="flex-1 p-4 sm:p-6">
@@ -902,6 +903,7 @@ function AdminDashboard() {
             </div>
         </div>
     );
+
 }
 
 export default AdminDashboard;
