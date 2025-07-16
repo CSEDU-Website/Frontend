@@ -29,6 +29,7 @@ import SettingsPage from './Student/Settings'
 import Finance from './Student/Finance'
 import AdminFinance from './Admin/AdminFinance'
 import NoticeBoard from './pages/NoticeBoard'
+import StudentEventShow from './Student/StudentEventShow'
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
         <Route path="/chairman" element={<AboutChairman />} />
         <Route path="/meetings" element={<DepartmentalMeetings />} />
         <Route path="/notice-board" element={<NoticeBoard />} />
+        <Route path="/studentEventShow" element={<StudentEventShow />} />
 
         {/* Protected pages */}
         <Route

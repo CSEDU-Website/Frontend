@@ -8,7 +8,8 @@ import Enroll from "./Enroll";
 import Finance from "./Finance";
 import ResourceHub from "./ResourceHub";
 import StudentNotice from "./StudentNotice";
-import ResourceHubTest from "./ResourceHubTest";
+import ResourceHubTest from "./ResourceHubTest"
+import StudentEventShow from "./StudentEventShow";
 
 
 
@@ -29,6 +30,8 @@ const StudentDashboard = () => {
         return <ResourceHub />;
       case "Notice Board":
         return <StudentNotice />;
+      case "events":
+        return <StudentEventShow />;
       case "settings":
         return <SettingsPage />
       default:
@@ -75,6 +78,12 @@ const StudentDashboard = () => {
           onClick={() => setActivePage("Notice Board")}
         >
           Notice Board
+        </button>
+        <button
+          className="w-full text-left hover:bg-slate-700 p-2 rounded"
+          onClick={() => setActivePage("events")}
+        >
+          Events
         </button>
         <button
           className="w-full text-left hover:bg-slate-700 p-2 rounded"
