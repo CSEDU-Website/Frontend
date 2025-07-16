@@ -47,10 +47,6 @@ const AboutChairman = () => {
       {/* Hero Section - Removed circular image */}
       <div className="bg-gradient-to-r from-slate-800 to-gray-800 text-white">
         <div className="container mx-auto px-4 py-16">
-          <Link to="/" className="inline-flex items-center gap-2 text-slate-200 hover:text-white mb-6">
-            <ArrowLeft size={20} />
-            Back to Home
-          </Link>
           <div className="flex flex-col lg:flex-row items-center gap-8">
             <div className="flex-1">
               <h1 className="text-4xl lg:text-5xl font-bold mb-4">
@@ -294,11 +290,6 @@ const AboutChairman = () => {
             We welcome intelligent and creative minds willing to take the challenges of 21st century workplaces 
             and have strong enthusiasm to work in building a smart Bangladesh.
           </p>
-          <div className="mt-8">
-            <button className="bg-slate-600 hover:bg-slate-700 text-white px-8 py-3 rounded-lg font-medium transition-colors">
-              Contact Department
-            </button>
-          </div>
         </div>
       </div>
     </div>

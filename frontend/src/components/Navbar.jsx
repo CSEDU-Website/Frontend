@@ -1,13 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
-
 const Navbar = () => {
   // Check if user is logged in
-  const { user, setUser, setToken } = useContext(AuthContext);
-  const isLoggedIn = user?.isAuthenticated || false;
+  const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+  const isLoggedIn = user.isAuthenticated;
 
   // Add state for mobile menu
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -20,22 +17,6 @@ const Navbar = () => {
     } else if (user.role === 'admin') {
       window.location.href = '/admin-dashboard';
     }
-  };
-
-  const handleLogout = () => {
-    // console.log("Before logout:", localStorage.getItem("token"));
-    // Clear token from storage
-    localStorage.removeItem("token");
-    sessionStorage.removeItem("token");
-
-    // console.log("After logout:", localStorage.getItem("token"));
-
-    // Reset context
-    setToken(null);
-    setUser(null);
-
-    // Redirect
-    // window.location.href = "/";
   };
 
   return (
@@ -70,7 +51,11 @@ const Navbar = () => {
                   Dashboard
                 </button>
                 <button 
-                  onClick={handleLogout}
+                  onClick={() => {
+                    localStorage.removeItem('user');
+                    sessionStorage.removeItem('user');
+                    window.location.href = '/';
+                  }}
                   className="py-2 px-3 bg-red-600 hover:bg-red-500 text-white rounded transition duration-300"
                 >
                   Logout
@@ -183,7 +168,11 @@ const Navbar = () => {
                 Dashboard
               </button>
               <button 
-                onClick={handleLogout}
+                onClick={() => {
+                  localStorage.removeItem('user');
+                  sessionStorage.removeItem('user');
+                  window.location.href = '/';
+                }}
                 className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-white bg-red-600 hover:bg-red-700"
               >
                 Logout

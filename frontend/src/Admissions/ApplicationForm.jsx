@@ -733,13 +733,13 @@ function ApplicationForm() {
             <Navbar />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-                <div className="flex text-sm text-gray-500 mb-4">
+                {/* <div className="flex text-sm text-gray-500 mb-4">
                     <Link to="/" className="hover:text-gray-700">
                         Admissions
                     </Link>
                     <span className="mx-2">/</span>
                     <span>New Application</span>
-                </div>
+                </div> */}
 
                 <h1 className="text-3xl font-bold text-gray-800 mb-6">
                     New Application
@@ -942,95 +942,7 @@ function ApplicationForm() {
                     </div>
 
                     {/* Sidebar - Key Deadlines */}
-                    <div className="w-full lg:w-64">
-                        <div className="bg-white rounded-lg shadow-md p-6 sticky top-4">
-                            <h2 className="text-lg font-semibold text-gray-800 mb-4">
-                                Key Deadlines
-                            </h2>
-                            <ul className="space-y-6">
-                                <li className="flex items-start">
-                                    <div className="flex-shrink-0 mt-1">
-                                        <div className="w-4 h-4 rounded-full bg-gray-200 flex items-center justify-center">
-                                            <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                                        </div>
-                                    </div>
-                                    <div className="ml-3">
-                                        <p className="text-sm font-medium text-gray-900">
-                                            July 15, 2024
-                                        </p>
-                                        <p className="text-xs text-red-600">
-                                            Application Deadline
-                                        </p>
-                                    </div>
-                                    <div className="ml-auto">
-                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                                            Open
-                                        </span>
-                                    </div>
-                                </li>
-                                <li className="flex items-start">
-                                    <div className="flex-shrink-0 mt-1">
-                                        <div className="w-4 h-4 rounded-full bg-gray-200 flex items-center justify-center">
-                                            <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                                        </div>
-                                    </div>
-                                    <div className="ml-3">
-                                        <p className="text-sm font-medium text-gray-900">
-                                            July 22, 2024
-                                        </p>
-                                        <p className="text-xs text-gray-600">
-                                            Document Submission
-                                        </p>
-                                    </div>
-                                    <div className="ml-auto">
-                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                                            Open
-                                        </span>
-                                    </div>
-                                </li>
-                                <li className="flex items-start">
-                                    <div className="flex-shrink-0 mt-1">
-                                        <div className="w-4 h-4 rounded-full bg-gray-200 flex items-center justify-center">
-                                            <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                                        </div>
-                                    </div>
-                                    <div className="ml-3">
-                                        <p className="text-sm font-medium text-gray-900">
-                                            August 1, 2024
-                                        </p>
-                                        <p className="text-xs text-gray-600">
-                                            Interview Scheduling
-                                        </p>
-                                    </div>
-                                    <div className="ml-auto">
-                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                                            Open
-                                        </span>
-                                    </div>
-                                </li>
-                                <li className="flex items-start">
-                                    <div className="flex-shrink-0 mt-1">
-                                        <div className="w-4 h-4 rounded-full bg-gray-200 flex items-center justify-center">
-                                            <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                                        </div>
-                                    </div>
-                                    <div className="ml-3">
-                                        <p className="text-sm font-medium text-gray-900">
-                                            August 15, 2024
-                                        </p>
-                                        <p className="text-xs text-gray-600">
-                                            Admission Decision
-                                        </p>
-                                    </div>
-                                    <div className="ml-auto">
-                                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
-                                            Open
-                                        </span>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
+                    
                 </div>
             </div>
         </div>
