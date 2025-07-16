@@ -56,10 +56,6 @@ const PeopleDirectory = () => {
       {/* Header */}
       <div className="bg-gradient-to-r from-slate-800 to-gray-800 text-white py-12">
         <div className="container mx-auto px-4">
-          <Link to="/" className="inline-flex items-center gap-2 text-slate-200 hover:text-white mb-4">
-            <ArrowLeft size={20} />
-            Back to Home
-          </Link>
           <h1 className="text-4xl font-bold mb-4">People Directory</h1>
           <p className="text-xl text-slate-200">Meet our distinguished faculty and researchers</p>
         </div>
@@ -209,7 +205,7 @@ const PeopleDirectory = () => {
 
       {/* Profile Modal */}
       {showModal && selectedPerson && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black/20 bg-opacity-50 backdrop-blur-lg flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-start mb-6">

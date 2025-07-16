@@ -85,9 +85,9 @@ function ProgramDetails() {
                                 ></path>
                             </svg>
                             <span className="hidden sm:inline">
-                                Back to Programs
+                                Return
                             </span>
-                            <span className="sm:hidden">Back</span>
+                            <span className="sm:hidden">Return</span>
                         </Link>
                     </div>
 
@@ -663,12 +663,6 @@ function ProgramDetails() {
                             className="px-4 sm:px-6 py-2 sm:py-3 bg-white text-slate-700 font-bold rounded-lg hover:bg-gray-100 transition duration-300 text-sm sm:text-base"
                         >
                             Apply Now
-                        </Link>
-                        <Link
-                            to="/contact"
-                            className="px-4 sm:px-6 py-2 sm:py-3 bg-transparent border-2 border-white text-white font-bold rounded-lg hover:bg-gray-800 transition duration-300 text-sm sm:text-base"
-                        >
-                            Contact Admissions
                         </Link>
                     </div>
                 </div>
