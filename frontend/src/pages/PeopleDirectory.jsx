@@ -2,6 +2,7 @@ import React, { useState} from 'react';
 import { Search, Filter, Mail, Phone, MapPin, Calendar, FileText, ExternalLink, X, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import peopleData from '../data/people.json';
 
 const PeopleDirectory = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -12,57 +13,8 @@ const PeopleDirectory = () => {
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  // Mock data - replace with API call
-  const people = [
-    {
-      id: 1,
-      name: "Dr. John Smith",
-      role: "Professor",
-      expertise: ["AI", "Machine Learning"],
-      email: "john.smith@university.edu",
-      phone: "+1 (555) 123-4567",
-      office: "Room 301, CSE Building",
-      officeHours: "Mon-Wed 2-4 PM",
-      image: "/faculty-1.jpg",
-      publications: [
-        { title: "Advanced Machine Learning Techniques", year: 2023, link: "#" },
-        { title: "Neural Networks in Computer Vision", year: 2022, link: "#" }
-      ],
-      bio: "Specializes in artificial intelligence and machine learning with 15+ years of research experience."
-    },
-    {
-      id: 2,
-      name: "Dr. Sarah Johnson",
-      role: "Associate Professor",
-      expertise: ["Data Science", "Analytics"],
-      email: "sarah.johnson@university.edu",
-      phone: "+1 (555) 234-5678",
-      office: "Room 205, CSE Building",
-      officeHours: "Tue-Thu 1-3 PM",
-      image: "/faculty-2.jpg",
-      publications: [
-        { title: "Big Data Analytics in Healthcare", year: 2023, link: "#" },
-        { title: "Data Mining Algorithms", year: 2021, link: "#" }
-      ],
-      bio: "Expert in data science and analytics with focus on healthcare applications."
-    },
-    {
-      id: 3,
-      name: "Dr. Michael Chen",
-      role: "Assistant Professor",
-      expertise: ["Cybersecurity", "Network Security"],
-      email: "michael.chen@university.edu",
-      phone: "+1 (555) 345-6789",
-      office: "Room 108, CSE Building",
-      officeHours: "Mon-Fri 10-12 PM",
-      image: "/faculty-3.jpg",
-      publications: [
-        { title: "Modern Cryptography Methods", year: 2023, link: "#" },
-        { title: "Network Security Protocols", year: 2022, link: "#" }
-      ],
-      bio: "Focuses on cybersecurity and network security research and applications."
-    }
-  ];
+  // Data imported from JSON file
+  const people = peopleData;
 
   const roles = ["Professor", "Associate Professor", "Assistant Professor", "Lecturer"];
   const expertiseAreas = ["AI", "Machine Learning", "Data Science", "Analytics", "Cybersecurity", "Network Security", "Software Engineering"];
