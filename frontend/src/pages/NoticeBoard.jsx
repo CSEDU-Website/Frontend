@@ -19,16 +19,14 @@ const NoticeBoard = () => {
   const isLoggedIn = user.isAuthenticated;
   
   // Fetch notices when component mounts
-  useEffect(() => {
-    fetchNotices();
-  }, [fetchNotices]);
+
   
   // Fetch all upcoming notices using the API
   const fetchNotices = useCallback(async () => {
     setLoading(true);
     try {
       // Notices are sent to all batches, so no batch filtering needed
-      const endpoint = `${BACKEND_URL}/student/notice/upcoming`;
+      const endpoint = `${BACKEND_URL}/student/notice/all`;
       
       const response = await axios.get(endpoint);
       
@@ -50,6 +48,10 @@ const NoticeBoard = () => {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    fetchNotices();
+  }, [fetchNotices]);
   
   // Fetch a specific notice by ID
   const fetchNoticeById = async (noticeId) => {
