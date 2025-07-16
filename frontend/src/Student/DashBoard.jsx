@@ -38,6 +38,7 @@ import {
 
 import axios from "axios";
 
+
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 
@@ -234,6 +235,14 @@ export default function Dashboard() {
           >
             <ClipboardList size={16} />
             <span className="hidden sm:inline">Finance</span>
+          </button>
+          <button 
+            onClick={() => navigate("/StudentEventShow")}
+            className="flex items-center gap-2 px-3 py-4 text-slate-500 hover:text-slate-700 
+              hover:bg-slate-50 hover:scale-105 transform transition-all duration-300 whitespace-nowrap"
+          >
+            <ClipboardList size={16} />
+            <span className="hidden sm:inline">Events</span>
           </button>
           <button 
             onClick={() => navigate("/settingspage")}
