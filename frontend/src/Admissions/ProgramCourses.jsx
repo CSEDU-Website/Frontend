@@ -1,369 +1,441 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-
-// Sample courses data for Bachelor of Science in Computer Science (Program ID 1)
-const programCoursesData = {
-  1: [
-    {
-      id: 101,
-      code: "CSE 101",
-      title: "Introduction to Computer Science",
-      semester: "Fall 2025",
-      credits: 3,
-      description: "An introduction to computer science and programming concepts.",
-      image: "/images/computer-science-intro.jpg"
-    },
-    {
-      id: 102,
-      code: "CSE 102",
-      title: "Introduction to Programming",
-      semester: "Fall 2025",
-      credits: 3,
-      description: "Fundamentals of programming using a high-level language.",
-      image: "/images/programming-intro.jpg"
-    },
-    {
-      id: 201,
-      code: "CSE 201",
-      title: "Data Structures",
-      semester: "Spring 2026",
-      credits: 3,
-      description: "Implementation and analysis of fundamental data structures.",
-      image: "/images/data-structures.jpg"
-    },
-    {
-      id: 202,
-      code: "CSE 202",
-      title: "Digital Logic Design",
-      semester: "Spring 2026",
-      credits: 3,
-      description: "Boolean algebra, logic gates, and digital circuit design.",
-      image: "/images/digital-logic.jpg"
-    },
-    {
-      id: 301,
-      code: "CSE 301",
-      title: "Computer Networking",
-      semester: "Fall 2026",
-      credits: 3,
-      description: "Principles and practices of computer network systems.",
-      image: "/images/computer-networking.jpg"
-    },
-    {
-      id: 302,
-      code: "CSE 302",
-      title: "Operating Systems",
-      semester: "Fall 2026",
-      credits: 4,
-      description: "Process management, memory management, and file systems.",
-      image: "/images/operating-systems.jpg"
-    },
-    {
-      id: 303,
-      code: "CSE 303",
-      title: "Software Engineering",
-      semester: "Fall 2026",
-      credits: 3,
-      description: "Software development life cycle and project management.",
-      image: "/images/software-engineering.jpg"
-    },
-    {
-      id: 304,
-      code: "CSE 304",
-      title: "Database Management Systems",
-      semester: "Fall 2026",
-      credits: 3,
-      description: "Database design, SQL, and database administration.",
-      image: "/images/database-systems.jpg"
-    },
-    {
-      id: 401,
-      code: "CSE 401",
-      title: "Artificial Intelligence",
-      semester: "Spring 2027",
-      credits: 3,
-      description: "Problem-solving methods in artificial intelligence.",
-      image: "/images/artificial-intelligence.jpg"
-    },
-    {
-      id: 402,
-      code: "CSE 402",
-      title: "Computer Graphics",
-      semester: "Spring 2027",
-      credits: 3,
-      description: "2D and 3D graphics algorithms and programming.",
-      image: "/images/computer-graphics.jpg"
-    },
-    {
-      id: 403,
-      code: "CSE 403",
-      title: "Theory of Computation",
-      semester: "Spring 2027",
-      credits: 3,
-      description: "Formal languages, automata, and computational complexity.",
-      image: "/images/theory-of-computation.jpg"
-    },
-    {
-      id: 404,
-      code: "CSE 404",
-      title: "Compiler Design",
-      semester: "Spring 2027",
-      credits: 3,
-      description: "Lexical analysis, parsing, and code generation.",
-      image: "/images/compiler-design.jpg"
-    },
-    {
-      id: 405,
-      code: "CSE 405",
-      title: "Machine Learning",
-      semester: "Fall 2027",
-      credits: 3,
-      description: "Supervised and unsupervised learning algorithms.",
-      image: "/images/machine-learning.jpg"
-    },
-    {
-      id: 406,
-      code: "CSE 406",
-      title: "Cryptography and Network Security",
-      semester: "Fall 2027",
-      credits: 3,
-      description: "Encryption, authentication, and network security protocols.",
-      image: "/images/network-security.jpg"
-    },
-    {
-      id: 407,
-      code: "CSE 407",
-      title: "Mobile App Development",
-      semester: "Fall 2027",
-      credits: 3,
-      description: "Development of applications for mobile devices.",
-      image: "/images/mobile-app-dev.jpg"
-    },
-    {
-      id: 408,
-      code: "CSE 408",
-      title: "Web Development",
-      semester: "Fall 2027",
-      credits: 3,
-      description: "Client-server architecture and web application development.",
-      image: "/images/web-development.jpg"
-    },
-    {
-      id: 409,
-      code: "CSE 409",
-      title: "Cloud Computing",
-      semester: "Spring 2028",
-      credits: 3,
-      description: "Distributed systems and cloud service models.",
-      image: "/images/cloud-computing.jpg"
-    },
-    {
-      id: 410,
-      code: "CSE 410",
-      title: "Data Science",
-      semester: "Spring 2028",
-      credits: 3,
-      description: "Data analysis, visualization, and statistical modeling.",
-      image: "/images/data-science.jpg"
-    },
-    {
-      id: 411,
-      code: "CSE 411",
-      title: "Natural Language Processing",
-      semester: "Spring 2028",
-      credits: 3,
-      description: "Algorithms for processing and analyzing human language.",
-      image: "/images/nlp.jpg"
-    },
-    {
-      id: 412,
-      code: "CSE 412",
-      title: "Final Year Project",
-      semester: "Spring 2028",
-      credits: 6,
-      description: "Capstone project integrating knowledge from various courses.",
-      image: "/images/project.jpg"
-    }
-  ],
-  // Add more program IDs and their courses here
-};
+import React, { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import coursesData from "../assets/ProgramCourses.json";
 
 // Get program titles for breadcrumb
 const programTitles = {
-  1: "Bachelor of Science in Computer Science",
-  2: "Masters of Science in Computer Science and Engineering",
-  3: "Doctor of Philosophy in Physics",
-  4: "Bachelor of Arts in History",
-  5: "Master of Science in Biology",
-  6: "Doctor of Education in Leadership"
+    1: "Bachelor of Science in Computer Science",
+    2: "Masters of Science in Computer Science and Engineering",
+    3: "Doctor of Philosophy in Physics",
+    4: "Bachelor of Arts in History",
+    5: "Master of Science in Biology",
+    6: "Doctor of Education in Leadership",
 };
 
 function ProgramCourses() {
-  const { programId } = useParams();
-  const [courses, setCourses] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [programTitle, setProgramTitle] = useState("");
+    const { programId } = useParams();
+    const [courses, setCourses] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [programTitle, setProgramTitle] = useState("");
 
-  useEffect(() => {
-    // In a real application, this would be an API call
-    const fetchCourses = () => {
-      setLoading(true);
-      setTimeout(() => {
-        const programCourses = programCoursesData[programId] || [];
-        setCourses(programCourses);
-        setProgramTitle(programTitles[programId] || "Program");
-        setLoading(false);
-      }, 500); // Simulate loading
+    // Filters state
+    const [yearFilters, setYearFilters] = useState([1, 2, 3, 4]);
+    const [semesterFilters, setSmesterFilters] = useState(["Fall", "Spring"]);
+    const [creditFilters, setCreditFilters] = useState([3, 4, 6]);
+    const [searchTerm, setSearchTerm] = useState("");
+
+    useEffect(() => {
+        // Fetch courses from JSON file
+        const fetchCourses = () => {
+            setLoading(true);
+            setTimeout(() => {
+                const programCourses = coursesData[programId] || [];
+                setCourses(programCourses);
+                setProgramTitle(programTitles[programId] || "Program");
+                setLoading(false);
+            }, 500); // Simulate loading
+        };
+
+        fetchCourses();
+    }, [programId]);
+
+    // Toggle a filter in the filter list
+    const toggleFilter = (filter, currentFilters, setFilters) => {
+        if (currentFilters.includes(filter)) {
+            setFilters(currentFilters.filter((f) => f !== filter));
+        } else {
+            setFilters([...currentFilters, filter]);
+        }
     };
 
-    fetchCourses();
-  }, [programId]);
+    // Apply filters to courses
+    const filteredCourses = courses.filter((course) => {
+        // Apply year filter
+        if (!yearFilters.includes(course.year)) return false;
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex justify-center items-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
+        // Apply semester filter (check if semester starts with any of the filter values)
+        if (!semesterFilters.some((sem) => course.semester.startsWith(sem)))
+            return false;
 
-  if (courses.length === 0) {
-    return (
-      <div className="min-h-screen flex flex-col justify-center items-center">
-        <h1 className="text-2xl font-bold text-red-600">No Courses Found</h1>
-        <p className="mt-4">There are no courses available for this program.</p>
-        <Link to={`/program/${programId}`} className="mt-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-          Return to Program Details
-        </Link>
-      </div>
-    );
-  }
+        // Apply credits filter
+        if (!creditFilters.includes(course.credits)) return false;
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header with breadcrumb */}
-      <div className="bg-blue-900 text-white">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center text-sm mb-2">
-            <Link to="/" className="hover:text-blue-300">Home</Link>
-            <span className="mx-2">›</span>
-            <Link to="/admission-hub" className="hover:text-blue-300">Programs</Link>
-            <span className="mx-2">›</span>
-            <Link to={`/program/${programId}`} className="hover:text-blue-300">{programTitle}</Link>
-            <span className="mx-2">›</span>
-            <span>Courses</span>
-          </div>
-          <h1 className="text-3xl font-bold">Courses</h1>
-          <p className="mt-2">All courses for {programTitle}</p>
-        </div>
-      </div>
+        // Apply search filter
+        if (
+            searchTerm &&
+            !course.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
+            !course.code.toLowerCase().includes(searchTerm.toLowerCase())
+        ) {
+            return false;
+        }
 
-      {/* Main content */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Sidebar layout */}
-        <div className="flex flex-col md:flex-row">
-          {/* Sidebar */}
-          <div className="w-full md:w-64 mb-8 md:mb-0 md:mr-8">
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h2 className="font-bold text-lg mb-4">Filter Courses</h2>
-              
-              <div className="mb-4">
-                <h3 className="font-medium text-gray-700 mb-2">By Year</h3>
-                <div className="space-y-2">
-                  <label className="flex items-center">
-                    <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600" defaultChecked />
-                    <span className="ml-2 text-sm text-gray-700">Year 1</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600" defaultChecked />
-                    <span className="ml-2 text-sm text-gray-700">Year 2</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600" defaultChecked />
-                    <span className="ml-2 text-sm text-gray-700">Year 3</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600" defaultChecked />
-                    <span className="ml-2 text-sm text-gray-700">Year 4</span>
-                  </label>
-                </div>
-              </div>
-              
-              <div className="mb-4">
-                <h3 className="font-medium text-gray-700 mb-2">By Semester</h3>
-                <div className="space-y-2">
-                  <label className="flex items-center">
-                    <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600" defaultChecked />
-                    <span className="ml-2 text-sm text-gray-700">Fall</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600" defaultChecked />
-                    <span className="ml-2 text-sm text-gray-700">Spring</span>
-                  </label>
-                </div>
-              </div>
-              
-              <div>
-                <h3 className="font-medium text-gray-700 mb-2">By Credits</h3>
-                <div className="space-y-2">
-                  <label className="flex items-center">
-                    <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600" defaultChecked />
-                    <span className="ml-2 text-sm text-gray-700">3 Credits</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600" defaultChecked />
-                    <span className="ml-2 text-sm text-gray-700">4 Credits</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-600" defaultChecked />
-                    <span className="ml-2 text-sm text-gray-700">6 Credits</span>
-                  </label>
-                </div>
-              </div>
+        return true;
+    });
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-100 to-gray-200 flex justify-center items-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-slate-700"></div>
             </div>
-          </div>
-          
-          {/* Course listing */}
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Current Courses</h2>
-            
-            {/* Courses grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 overflow-y-auto max-h-[calc(100vh-250px)] pb-6">
-              {courses.map(course => (
-                <div key={course.id} className="bg-white overflow-hidden shadow rounded-lg">
-                  <div className="h-40 bg-gray-100 flex items-center justify-center p-4">
-                    <div className="w-24 h-32 bg-white shadow-md flex items-center justify-center">
-                      <span className="text-center text-gray-600 font-medium text-sm px-2">
-                        {course.title}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="px-4 py-4">
-                    <h3 className="text-lg font-medium text-gray-900">{course.title}</h3>
-                    <p className="text-sm text-gray-600 mb-4">{course.code} • {course.semester}</p>
-                    <div className="flex space-x-2">
-                      <Link 
-                        to={`/course/${course.id}/syllabus`}
-                        className="px-3 py-1.5 bg-gray-200 text-gray-800 text-sm font-medium rounded hover:bg-gray-300 transition"
-                      >
-                        View Syllabus
-                      </Link>
-                      <Link 
-                        to={`/course/${course.id}`}
-                        className="px-3 py-1.5 bg-orange-500 text-white text-sm font-medium rounded hover:bg-orange-600 transition"
-                      >
-                        Go to Course
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              ))}
+        );
+    }
+
+    if (courses.length === 0) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-100 to-gray-200 flex flex-col justify-center items-center">
+                <h1 className="text-2xl font-bold text-red-600">
+                    No Courses Found
+                </h1>
+                <p className="mt-4">
+                    There are no courses available for this program.
+                </p>
+                <Link
+                    to={`/program/${programId}`}
+                    className="mt-6 px-4 py-2 bg-slate-700 text-white rounded hover:bg-slate-800"
+                >
+                    Return to Program Details
+                </Link>
             </div>
-          </div>
+        );
+    }
+
+    return (
+        <div className="min-h-screen bg-gradient-to-br from-slate-100 to-gray-200">
+            {/* Header with breadcrumb */}
+            <div className="bg-gradient-to-r from-slate-700 via-gray-800 to-slate-700 text-white">
+                <div className="max-w-7xl mx-auto px-4 py-6">
+                    <div className="flex items-center text-sm mb-2">
+                        <Link to="/" className="hover:text-gray-300">
+                            Home
+                        </Link>
+                        <span className="mx-2">›</span>
+                        <Link
+                            to="/admission-hub"
+                            className="hover:text-gray-300"
+                        >
+                            Programs
+                        </Link>
+                        <span className="mx-2">›</span>
+                        <Link
+                            to={`/program/${programId}`}
+                            className="hover:text-gray-300"
+                        >
+                            {programTitle}
+                        </Link>
+                        <span className="mx-2">›</span>
+                        <span>Courses</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <h1 className="text-3xl font-bold">Courses</h1>
+                            <p className="mt-2 text-gray-300">
+                                All courses for {programTitle}
+                            </p>
+                        </div>
+                        <Link
+                            to={`/program/${programId}`}
+                            className="inline-flex items-center px-4 py-2 border border-gray-600 text-sm font-medium rounded-md shadow-md text-white bg-gray-600 hover:bg-gray-700 transition-colors duration-200"
+                        >
+                            <svg
+                                className="w-5 h-5 mr-2"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                                ></path>
+                            </svg>
+                            Back to Program
+                        </Link>
+                    </div>
+                </div>
+            </div>
+
+            {/* Main content */}
+            <div className="max-w-7xl mx-auto px-4 py-8">
+                {/* Search bar */}
+                <div className="mb-8 max-w-lg mx-auto">
+                    <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg
+                                className="h-5 w-5 text-gray-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                                ></path>
+                            </svg>
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Search courses by title or code..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition duration-150 ease-in-out shadow-sm"
+                        />
+                    </div>
+                </div>
+
+                {/* Sidebar layout */}
+                <div className="flex flex-col md:flex-row">
+                    {/* Sidebar */}
+                    <div className="w-full md:w-64 mb-8 md:mb-0 md:mr-8">
+                        <div className="bg-white p-6 rounded-lg shadow sticky top-4">
+                            <h2 className="font-bold text-lg text-slate-700 mb-4 flex items-center">
+                                <svg
+                                    className="w-5 h-5 mr-2"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+                                    ></path>
+                                </svg>
+                                Filter Courses
+                            </h2>
+
+                            <div className="mb-6">
+                                <h3 className="font-medium text-gray-700 mb-2 border-b pb-1">
+                                    By Year
+                                </h3>
+                                <div className="space-y-2 mt-3">
+                                    {[1, 2, 3, 4].map((year) => (
+                                        <label
+                                            key={year}
+                                            className="flex items-center"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                className="form-checkbox h-4 w-4 text-slate-600 rounded"
+                                                checked={yearFilters.includes(
+                                                    year
+                                                )}
+                                                onChange={() =>
+                                                    toggleFilter(
+                                                        year,
+                                                        yearFilters,
+                                                        setYearFilters
+                                                    )
+                                                }
+                                            />
+                                            <span className="ml-2 text-sm text-gray-700">
+                                                Year {year}
+                                            </span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="mb-6">
+                                <h3 className="font-medium text-gray-700 mb-2 border-b pb-1">
+                                    By Semester
+                                </h3>
+                                <div className="space-y-2 mt-3">
+                                    {["Fall", "Spring"].map((semester) => (
+                                        <label
+                                            key={semester}
+                                            className="flex items-center"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                className="form-checkbox h-4 w-4 text-slate-600 rounded"
+                                                checked={semesterFilters.includes(
+                                                    semester
+                                                )}
+                                                onChange={() =>
+                                                    toggleFilter(
+                                                        semester,
+                                                        semesterFilters,
+                                                        setSmesterFilters
+                                                    )
+                                                }
+                                            />
+                                            <span className="ml-2 text-sm text-gray-700">
+                                                {semester}
+                                            </span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="mb-4">
+                                <h3 className="font-medium text-gray-700 mb-2 border-b pb-1">
+                                    By Credits
+                                </h3>
+                                <div className="space-y-2 mt-3">
+                                    {[3, 4, 6].map((credit) => (
+                                        <label
+                                            key={credit}
+                                            className="flex items-center"
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                className="form-checkbox h-4 w-4 text-slate-600 rounded"
+                                                checked={creditFilters.includes(
+                                                    credit
+                                                )}
+                                                onChange={() =>
+                                                    toggleFilter(
+                                                        credit,
+                                                        creditFilters,
+                                                        setCreditFilters
+                                                    )
+                                                }
+                                            />
+                                            <span className="ml-2 text-sm text-gray-700">
+                                                {credit} Credits
+                                            </span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={() => {
+                                    setYearFilters([1, 2, 3, 4]);
+                                    setSmesterFilters(["Fall", "Spring"]);
+                                    setCreditFilters([3, 4, 6]);
+                                    setSearchTerm("");
+                                }}
+                                className="w-full mt-4 py-2 px-4 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-slate-600 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-500"
+                            >
+                                Reset Filters
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Course listing */}
+                    <div className="flex-1">
+                        <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-2xl font-bold text-slate-700">
+                                    Course Catalog
+                                </h2>
+                                <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-sm font-medium">
+                                    {filteredCourses.length} Course
+                                    {filteredCourses.length !== 1 ? "s" : ""}
+                                </span>
+                            </div>
+                            <p className="text-gray-600 mb-2">
+                                Below you'll find all courses for the{" "}
+                                {programTitle} program. Use the filters to
+                                narrow down your selection.
+                            </p>
+                        </div>
+
+                        {/* Empty state */}
+                        {filteredCourses.length === 0 && (
+                            <div className="bg-white p-8 rounded-lg shadow-md text-center">
+                                <svg
+                                    className="mx-auto h-12 w-12 text-gray-400"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
+                                        d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                                    ></path>
+                                </svg>
+                                <h3 className="mt-2 text-lg font-medium text-gray-900">
+                                    No courses found
+                                </h3>
+                                <p className="mt-1 text-gray-500">
+                                    Try adjusting your filters to find what
+                                    you're looking for.
+                                </p>
+                                <button
+                                    onClick={() => {
+                                        setYearFilters([1, 2, 3, 4]);
+                                        setSmesterFilters(["Fall", "Spring"]);
+                                        setCreditFilters([3, 4, 6]);
+                                        setSearchTerm("");
+                                    }}
+                                    className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-slate-600 hover:bg-slate-700"
+                                >
+                                    Reset All Filters
+                                </button>
+                            </div>
+                        )}
+
+                        {/* Courses grid */}
+                        {filteredCourses.length > 0 && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {filteredCourses.map((course) => (
+                                    <div
+                                        key={course.id}
+                                        className="bg-white overflow-hidden shadow rounded-lg hover:shadow-md transition-shadow duration-200"
+                                    >
+                                        <div className="h-32 bg-gradient-to-r from-slate-700 to-slate-600 flex items-center justify-center p-4 relative">
+                                            {/* Replace the placeholder with actual image */}
+                                            <img
+                                                src={course.imageUrl}
+                                                alt={course.title}
+                                                className="absolute inset-0 w-full h-full object-cover opacity-40"
+                                            />
+                                            <div className="absolute top-2 left-2 z-10 bg-white shadow-md rounded px-2 py-1">
+                                                <span className="text-slate-700 font-medium text-xs">
+                                                    {course.code}
+                                                </span>
+                                            </div>
+                                            <div className="absolute top-2 right-2 z-10">
+                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-200 text-slate-800">
+                                                    Year {course.year}
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <div className="px-4 py-5 sm:p-6">
+                                            <h3 className="text-lg font-medium text-slate-800 mb-1">
+                                                {course.title}
+                                            </h3>
+                                            <div className="flex justify-between items-center mb-3">
+                                                <span className="text-sm text-gray-500">
+                                                    {course.semester}
+                                                </span>
+                                                <span className="text-sm font-medium text-slate-700">
+                                                    {course.credits} Credits
+                                                </span>
+                                            </div>
+                                            <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+                                                {course.description}
+                                            </p>
+                                            <div className="flex space-x-2">
+                                                <Link
+                                                    to={`/course/${course.id}/syllabus`}
+                                                    className="px-3 py-1.5 bg-slate-100 text-slate-700 text-sm font-medium rounded hover:bg-slate-200 transition"
+                                                >
+                                                    View Syllabus
+                                                </Link>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  );
+    );
 }
 
 export default ProgramCourses;
