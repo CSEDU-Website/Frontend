@@ -213,9 +213,6 @@ const SettingsPage = () => {
             <ArrowLeft size={20} />
             <span className="text-sm font-medium">Back to Dashboard</span>
           </Link>
-          <h1 className="text-2xl font-semibold text-gray-800">
-            Good Morning, {studentProfile?.last_name || "Student"}
-          </h1>
         </div>
         
       </header>
