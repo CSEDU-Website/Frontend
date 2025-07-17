@@ -169,7 +169,7 @@ function HomePage() {
     const fetchEvents = useCallback(async () => {
         setEventsLoading(true);
         try {
-            const endpoint = `${BACKEND_URL}/events`;
+            const endpoint = `${BACKEND_URL}/student/events/upcoming`;
 
             const response = await axios.get(endpoint);
 

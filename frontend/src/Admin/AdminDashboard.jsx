@@ -138,7 +138,7 @@ function AdminDashboard() {
                 let eventsList = [];
                 try {
                     const eventsResponse = await axios.get(
-                        `${BACKEND_URL}/admin/events/all`
+                        `${BACKEND_URL}/admin/events/get/all`
                     );
                     eventsList = eventsResponse.data;
                 } catch (eventsError) {
